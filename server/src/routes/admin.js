@@ -128,10 +128,19 @@ router.patch('/doctors/:id/approve', verifyAdmin, async (req, res) => {
       return res.status(404).json({ error: 'Doctor not found' });
     }
 
+    // Create subscription record for trial
+    const doctor = result.rows[0];
+    const now = new Date();
+    await query(
+      `INSERT INTO subscriptions (doctor_id, amount, status, period_start, period_end)
+       VALUES ($1, 0, 'approved', $2, $3)`,
+      [id, now, trialEndsAt]
+    );
+
     res.json({
       success: true,
       message: 'Doctor approved and trial started',
-      doctor: result.rows[0]
+      doctor
     });
   } catch (error) {
     console.error('Approve doctor error:', error);
@@ -201,6 +210,7 @@ router.post('/doctors/:id/extend', verifyAdmin, async (req, res) => {
     const { id } = req.params;
     const { days = 30 } = req.body;
 
+    const now = new Date();
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + parseInt(days));
 
@@ -217,10 +227,18 @@ router.post('/doctors/:id/extend', verifyAdmin, async (req, res) => {
       return res.status(404).json({ error: 'Doctor not found' });
     }
 
+    // Create subscription record for extension
+    const doctor = result.rows[0];
+    await query(
+      `INSERT INTO subscriptions (doctor_id, amount, status, period_start, period_end)
+       VALUES ($1, 0, 'approved', $2, $3)`,
+      [id, now, expiresAt]
+    );
+
     res.json({
       success: true,
       message: `Subscription extended by ${days} days`,
-      doctor: result.rows[0]
+      doctor
     });
   } catch (error) {
     console.error('Extend subscription error:', error);
