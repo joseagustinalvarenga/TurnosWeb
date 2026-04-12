@@ -13,6 +13,7 @@ import authRoutes from './routes/auth.js';
 import appointmentRoutes from './routes/appointments.js';
 import patientRoutes from './routes/patients.js';
 import doctorRoutes from './routes/doctor.js';
+import availabilityRoutes from './routes/availability.js';
 
 // Imports de middleware
 import { errorHandler } from './middleware/errorHandler.js';
@@ -52,6 +53,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/doctor', doctorRoutes);
+app.use('/api/availability', availabilityRoutes);
 
 // Configurar WebSocket
 const wss = new WebSocketServer({ server: httpServer });

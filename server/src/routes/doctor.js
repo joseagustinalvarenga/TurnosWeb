@@ -75,15 +75,23 @@ router.patch('/profile', verifyToken, verifyDoctorRole, async (req, res) => {
 // Dashboard del doctor (resumen)
 router.get('/dashboard', verifyToken, verifyDoctorRole, async (req, res) => {
   try {
-    // TODO: Implementar en FASE 3
+    import { getAppointmentsForToday, getAppointmentsByDoctor } from '../services/appointmentService.js';
+    import { getPatientsByDoctor } from '../services/patientService.js';
+
+    const todayAppointments = await getAppointmentsForToday(req.user.id);
+    const allAppointments = await getAppointmentsByDoctor(req.user.id);
+    const patients = await getPatientsByDoctor(req.user.id);
+    const pendingAppointments = allAppointments.filter(a => a.status === 'scheduled').length;
+
     res.json({
       success: true,
-      message: 'Dashboard en desarrollo (FASE 3)',
       stats: {
-        total_appointments: 0,
-        total_patients: 0,
-        appointments_today: 0,
-        pending_appointments: 0
+        total_appointments: allAppointments.length,
+        total_patients: patients.length,
+        appointments_today: todayAppointments.length,
+        pending_appointments: pendingAppointments,
+        completed_appointments: allAppointments.filter(a => a.status === 'completed').length,
+        cancelled_appointments: allAppointments.filter(a => a.status === 'cancelled').length
       }
     });
   } catch (error) {
