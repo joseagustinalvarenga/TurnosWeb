@@ -205,6 +205,36 @@ router.patch('/doctors/:id/suspend', verifyAdmin, async (req, res) => {
   }
 });
 
+// Reactivate suspended doctor account
+router.patch('/doctors/:id/reactivate', verifyAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await query(
+      `UPDATE doctors
+       SET status = 'approved'
+       WHERE id = $1 AND status = 'suspended'
+       RETURNING id, email, name, status, subscription_status, trial_ends_at, subscription_expires_at`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: 'Doctor not found or not suspended'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Doctor account reactivated',
+      doctor: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Reactivate doctor error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Extend subscription manually
 router.post('/doctors/:id/extend', verifyAdmin, async (req, res) => {
   try {

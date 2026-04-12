@@ -71,6 +71,13 @@ export default function AdminDoctorsPage() {
             { headers: { Authorization: `Bearer ${token}` } }
           );
           break;
+        case 'reactivate':
+          response = await axios.patch(
+            `${API_BASE_URL}/api/admin/doctors/${doctorId}/reactivate`,
+            {},
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          break;
         default:
           break;
       }
@@ -223,6 +230,17 @@ export default function AdminDoctorsPage() {
                         </button>
                       </>
                     )}
+                    {doctor.status === 'suspended' && (
+                      <button
+                        className={styles.approveBtn}
+                        onClick={() => {
+                          setSelectedDoctor(doctor);
+                          setActionModal('reactivate');
+                        }}
+                      >
+                        Reactivar
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -240,6 +258,7 @@ export default function AdminDoctorsPage() {
               {actionModal === 'reject' && 'Rechazar Doctor'}
               {actionModal === 'suspend' && 'Suspender Doctor'}
               {actionModal === 'extend' && 'Extender Suscripción'}
+              {actionModal === 'reactivate' && 'Reactivar Doctor'}
             </h2>
 
             <p>
@@ -248,6 +267,7 @@ export default function AdminDoctorsPage() {
               {actionModal === 'reject' && `¿Rechazar solicitud de ${selectedDoctor.name}?`}
               {actionModal === 'suspend' && `¿Suspender la cuenta de ${selectedDoctor.name}?`}
               {actionModal === 'extend' && `Extender suscripción de ${selectedDoctor.name}`}
+              {actionModal === 'reactivate' && `¿Reactivar la cuenta de ${selectedDoctor.name}?`}
             </p>
 
             {(actionModal === 'approve' || actionModal === 'extend') && (
