@@ -13,6 +13,7 @@ export default function AdminDoctorsPage() {
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [actionModal, setActionModal] = useState(null);
   const [extendDays, setExtendDays] = useState(30);
+  const [amount, setAmount] = useState(0);
   const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
@@ -45,7 +46,7 @@ export default function AdminDoctorsPage() {
         case 'approve':
           response = await axios.patch(
             `${API_BASE_URL}/api/admin/doctors/${doctorId}/approve`,
-            {},
+            { amount: parseFloat(amount) || 0 },
             { headers: { Authorization: `Bearer ${token}` } }
           );
           break;
@@ -66,7 +67,7 @@ export default function AdminDoctorsPage() {
         case 'extend':
           response = await axios.post(
             `${API_BASE_URL}/api/admin/doctors/${doctorId}/extend`,
-            { days: extendDays },
+            { days: extendDays, amount: parseFloat(amount) || 0 },
             { headers: { Authorization: `Bearer ${token}` } }
           );
           break;
@@ -181,6 +182,7 @@ export default function AdminDoctorsPage() {
                           className={styles.approveBtn}
                           onClick={() => {
                             setSelectedDoctor(doctor);
+                            setAmount(0);
                             setActionModal('approve');
                           }}
                         >
@@ -203,6 +205,8 @@ export default function AdminDoctorsPage() {
                           className={styles.extendBtn}
                           onClick={() => {
                             setSelectedDoctor(doctor);
+                            setExtendDays(30);
+                            setAmount(0);
                             setActionModal('extend');
                           }}
                         >
@@ -246,19 +250,36 @@ export default function AdminDoctorsPage() {
               {actionModal === 'extend' && `Extender suscripción de ${selectedDoctor.name}`}
             </p>
 
-            {actionModal === 'extend' && (
-              <div className={styles.formGroup}>
-                <label htmlFor="days">Días a extender:</label>
-                <input
-                  type="number"
-                  id="days"
-                  min="1"
-                  max="365"
-                  value={extendDays}
-                  onChange={e => setExtendDays(parseInt(e.target.value))}
-                  disabled={actionLoading}
-                />
-              </div>
+            {(actionModal === 'approve' || actionModal === 'extend') && (
+              <>
+                {actionModal === 'extend' && (
+                  <div className={styles.formGroup}>
+                    <label htmlFor="days">Días a extender:</label>
+                    <input
+                      type="number"
+                      id="days"
+                      min="1"
+                      max="365"
+                      value={extendDays}
+                      onChange={e => setExtendDays(parseInt(e.target.value))}
+                      disabled={actionLoading}
+                    />
+                  </div>
+                )}
+                <div className={styles.formGroup}>
+                  <label htmlFor="amount">Monto a pagar ($):</label>
+                  <input
+                    type="number"
+                    id="amount"
+                    min="0"
+                    step="0.01"
+                    value={amount}
+                    onChange={e => setAmount(e.target.value)}
+                    disabled={actionLoading}
+                    placeholder="0.00"
+                  />
+                </div>
+              </>
             )}
 
             <div className={styles.modalButtons}>

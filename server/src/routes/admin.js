@@ -109,6 +109,7 @@ router.get('/doctors', verifyAdmin, async (req, res) => {
 router.patch('/doctors/:id/approve', verifyAdmin, async (req, res) => {
   try {
     const { id } = req.params;
+    const { amount = 0 } = req.body; // Accept amount from request
     const trialEndsAt = new Date();
     trialEndsAt.setDate(trialEndsAt.getDate() + 15); // 15 days trial
 
@@ -133,8 +134,8 @@ router.patch('/doctors/:id/approve', verifyAdmin, async (req, res) => {
     const now = new Date();
     await query(
       `INSERT INTO subscriptions (doctor_id, amount, status, period_start, period_end)
-       VALUES ($1, 0, 'approved', $2, $3)`,
-      [id, now, trialEndsAt]
+       VALUES ($1, $2, 'approved', $3, $4)`,
+      [id, parseFloat(amount), now, trialEndsAt]
     );
 
     res.json({
@@ -208,7 +209,7 @@ router.patch('/doctors/:id/suspend', verifyAdmin, async (req, res) => {
 router.post('/doctors/:id/extend', verifyAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const { days = 30 } = req.body;
+    const { days = 30, amount = 0 } = req.body; // Accept days and amount
 
     const now = new Date();
     const expiresAt = new Date();
@@ -231,8 +232,8 @@ router.post('/doctors/:id/extend', verifyAdmin, async (req, res) => {
     const doctor = result.rows[0];
     await query(
       `INSERT INTO subscriptions (doctor_id, amount, status, period_start, period_end)
-       VALUES ($1, 0, 'approved', $2, $3)`,
-      [id, now, expiresAt]
+       VALUES ($1, $2, 'approved', $3, $4)`,
+      [id, parseFloat(amount), now, expiresAt]
     );
 
     res.json({
