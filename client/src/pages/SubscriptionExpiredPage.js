@@ -31,17 +31,19 @@ export default function SubscriptionExpiredPage() {
           </p>
         </div>
 
-        <div className={styles.infoBox}>
-          <h3>Información de tu Cuenta:</h3>
-          <div className={styles.infoItem}>
-            <span className={styles.label}>Nombre:</span>
-            <span className={styles.value}>{user?.name}</span>
+        {user && (
+          <div className={styles.infoBox}>
+            <h3>Información de tu Cuenta:</h3>
+            <div className={styles.infoItem}>
+              <span className={styles.label}>Nombre:</span>
+              <span className={styles.value}>{user?.name}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <span className={styles.label}>Email:</span>
+              <span className={styles.value}>{user?.email}</span>
+            </div>
           </div>
-          <div className={styles.infoItem}>
-            <span className={styles.label}>Email:</span>
-            <span className={styles.value}>{user?.email}</span>
-          </div>
-        </div>
+        )}
 
         <div className={styles.contactBox}>
           <h3>Próximos Pasos:</h3>

@@ -295,9 +295,17 @@ router.get('/google/callback', async (req, res) => {
       return res.redirect(redirectUrl);
     }
 
-    if (doctor.status === 'rejected' || doctor.status === 'suspended') {
-      console.log('❌ Doctor rechazado/suspendido, redirigiendo a login...');
-      const redirectUrl = `http://localhost:3000/login?error=${encodeURIComponent('Tu cuenta no tiene acceso')}`;
+    if (doctor.status === 'suspended') {
+      console.log('❌ Doctor suspendido, redirigiendo a página de cuenta suspendida...');
+      const redirectUrl = `http://localhost:3000/account-suspended`;
+      console.log('🔄 Redirigiendo a:', redirectUrl);
+      console.log('✓ Flujo completado\n');
+      return res.redirect(redirectUrl);
+    }
+
+    if (doctor.status === 'rejected') {
+      console.log('❌ Doctor rechazado, redirigiendo a login...');
+      const redirectUrl = `http://localhost:3000/login?error=${encodeURIComponent('Tu solicitud de cuenta fue rechazada')}`;
       console.log('🔄 Redirigiendo a:', redirectUrl.split('?')[0]);
       console.log('✓ Flujo completado\n');
       return res.redirect(redirectUrl);
