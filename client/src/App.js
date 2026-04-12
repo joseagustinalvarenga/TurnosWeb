@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardNewPage from './pages/DashboardNewPage';
 import AppointmentsPage from './pages/AppointmentsPage';
+import PatientsPage from './pages/PatientsPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Componentes
@@ -34,7 +35,7 @@ function AppContent() {
         <>
           <Route path="/dashboard" element={<DashboardNewPage />} />
           <Route path="/appointments" element={<AppointmentsPage />} />
-          <Route path="/patients" element={<DashboardNewPage />} />
+          <Route path="/patients" element={<PatientsPage />} />
           <Route path="/availability" element={<DashboardNewPage />} />
           <Route path="/reports" element={<DashboardNewPage />} />
           <Route path="/settings" element={<DashboardNewPage />} />
