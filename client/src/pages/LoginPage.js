@@ -62,10 +62,6 @@ export default function LoginPage() {
           <h1 className={styles.brandTitle}>MediHub</h1>
           <p className={styles.brandSubtitle}>Sistema de Gestión de Turnos Médicos</p>
 
-          <Link to="/admin/login" className={styles.adminLinkLeft}>
-            🔐 Entrar como Administrador
-          </Link>
-
           <div className={styles.features}>
             <div className={styles.feature}>
               <div className={styles.featureIcon}>✓</div>
@@ -92,6 +88,10 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
+
+        <Link to="/admin/login" className={styles.adminLinkLeft}>
+          🔐 Entrar como Administrador
+        </Link>
       </div>
 
       <div className={styles.rightSide}>
