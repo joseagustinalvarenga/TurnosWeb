@@ -50,8 +50,26 @@ export default function LoginPage() {
     const result = await login(formData.email, formData.password);
 
     if (!result.success) {
+      // Redirigir a pantalla de cuenta pendiente
+      if (result.pending) {
+        navigate('/account-pending', { replace: true });
+        return;
+      }
+
+      // Redirigir a pantalla de suscripción expirada
+      if (result.subscriptionExpired) {
+        navigate('/subscription-expired', { replace: true });
+        return;
+      }
+
+      // Redirigir a pantalla de cuenta suspendida
+      if (result.suspended) {
+        navigate('/account-suspended', { replace: true });
+        return;
+      }
+
+      // Mostrar error genérico
       setLocalError(result.error);
-      // Los errores pending y subscriptionExpired son manejados por el contexto
     }
   };
 

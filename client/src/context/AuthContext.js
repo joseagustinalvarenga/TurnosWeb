@@ -63,7 +63,12 @@ export const AuthProvider = ({ children }) => {
         return { success: false, error: message, subscriptionExpired: true };
       }
 
-      if (errorData?.rejected || errorData?.suspended) {
+      if (errorData?.suspended) {
+        setError(message);
+        return { success: false, error: message, suspended: true };
+      }
+
+      if (errorData?.rejected) {
         setError(message);
         return { success: false, error: message };
       }
