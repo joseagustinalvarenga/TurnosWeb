@@ -160,7 +160,9 @@ router.post('/login', async (req, res) => {
         specialization: doctor.specialization,
         clinic_name: doctor.clinic_name,
         status: doctor.status,
-        subscription_status: subscriptionStatus
+        subscription_status: subscriptionStatus,
+        trial_ends_at: doctor.trial_ends_at,
+        subscription_expires_at: doctor.subscription_expires_at
       }
     });
   } catch (error) {
@@ -176,7 +178,8 @@ router.post('/login', async (req, res) => {
 router.get('/verify', verifyToken, async (req, res) => {
   try {
     const doctor = await query(
-      'SELECT id, email, name, specialization, clinic_name FROM doctors WHERE id = $1',
+      `SELECT id, email, name, specialization, clinic_name, status, subscription_status, trial_ends_at, subscription_expires_at
+       FROM doctors WHERE id = $1`,
       [req.user.id]
     );
 
