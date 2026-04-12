@@ -62,6 +62,10 @@ export default function LoginPage() {
           <h1 className={styles.brandTitle}>MediHub</h1>
           <p className={styles.brandSubtitle}>Sistema de Gestión de Turnos Médicos</p>
 
+          <Link to="/admin/login" className={styles.adminLinkLeft}>
+            🔐 Entrar como Administrador
+          </Link>
+
           <div className={styles.features}>
             <div className={styles.feature}>
               <div className={styles.featureIcon}>✓</div>
@@ -176,7 +180,7 @@ export default function LoginPage() {
         </div>
 
         <div className={styles.credentials}>
-          <p className={styles.credentialsTitle}>Credenciales de Prueba (Doctor):</p>
+          <p className={styles.credentialsTitle}>Credenciales de Prueba:</p>
           <div className={styles.credentialsBox}>
             <div className={styles.credItem}>
               <span className={styles.label}>Email:</span>
@@ -187,13 +191,6 @@ export default function LoginPage() {
               <code>password123</code>
             </div>
           </div>
-
-          <p className={styles.credentialsTitle} style={{ marginTop: '1rem' }}>
-            ¿Eres Administrador?
-          </p>
-          <Link to="/admin/login" className={styles.adminBtn}>
-            Entrar como Administrador
-          </Link>
         </div>
       </div>
     </div>
