@@ -8,6 +8,7 @@ import { useAuth } from './hooks/useAuth';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardNewPage from './pages/DashboardNewPage';
+import AppointmentsPage from './pages/AppointmentsPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Componentes
@@ -32,7 +33,7 @@ function AppContent() {
       ) : (
         <>
           <Route path="/dashboard" element={<DashboardNewPage />} />
-          <Route path="/appointments" element={<DashboardNewPage />} />
+          <Route path="/appointments" element={<AppointmentsPage />} />
           <Route path="/patients" element={<DashboardNewPage />} />
           <Route path="/availability" element={<DashboardNewPage />} />
           <Route path="/reports" element={<DashboardNewPage />} />
