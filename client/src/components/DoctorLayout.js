@@ -1,6 +1,7 @@
 import React from 'react';
 import Sidebar from './Sidebar';
 import WebSocketStatus from './WebSocketStatus';
+import TrialCounter from './TrialCounter';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import styles from './DoctorLayout.module.css';
@@ -29,6 +30,7 @@ export default function DoctorLayout({ children }) {
 
             <div className={styles.topbarRight}>
               <WebSocketStatus />
+              <TrialCounter />
 
               <div className={styles.userMenu}>
                 <div className={styles.userInfo}>

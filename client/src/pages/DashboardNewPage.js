@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import DoctorLayout from '../components/DoctorLayout';
-import TrialCounter from '../components/TrialCounter';
 import { useAuth } from '../hooks/useAuth';
 import { useWebSocketContext } from '../hooks/useWebSocketContext';
 import { doctorAPI, appointmentAPI } from '../services/api';
@@ -111,7 +110,6 @@ export default function DashboardNewPage() {
               <div className={`${styles.statusIndicator} ${isConnected ? styles.connected : ''}`}></div>
               <span>{isConnected ? 'Conectado' : 'Desconectado'}</span>
             </div>
-            <TrialCounter />
           </div>
         </div>
 
