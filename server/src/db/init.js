@@ -31,11 +31,23 @@ async function initDatabase() {
         clinic_address TEXT,
         profile_image_url TEXT,
         is_active BOOLEAN DEFAULT true,
+        google_refresh_token TEXT,
+        google_calendar_id TEXT,
+        google_calendar_connected BOOLEAN DEFAULT false,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
     console.log('✓ Tabla doctors creada');
+
+    // Agregar columnas a doctors si no existen (para migraciones)
+    await client.query(`
+      ALTER TABLE doctors
+      ADD COLUMN IF NOT EXISTS google_refresh_token TEXT,
+      ADD COLUMN IF NOT EXISTS google_calendar_id TEXT,
+      ADD COLUMN IF NOT EXISTS google_calendar_connected BOOLEAN DEFAULT false;
+    `);
+    console.log('✓ Columnas Google Calendar agregadas a doctors');
 
     // Tabla de pacientes
     await client.query(`
@@ -70,12 +82,20 @@ async function initDatabase() {
         notes TEXT,
         delay_minutes INTEGER DEFAULT 0,
         queue_position INTEGER,
+        google_event_id TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(doctor_id, appointment_date, appointment_time)
       );
     `);
     console.log('✓ Tabla appointments creada');
+
+    // Agregar columna google_event_id si no existe (para migraciones)
+    await client.query(`
+      ALTER TABLE appointments
+      ADD COLUMN IF NOT EXISTS google_event_id TEXT;
+    `);
+    console.log('✓ Columna google_event_id agregada a appointments');
 
     // Tabla de disponibilidad del doctor
     await client.query(`

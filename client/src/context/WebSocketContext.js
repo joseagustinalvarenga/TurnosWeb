@@ -18,32 +18,44 @@ export const WebSocketProvider = ({ children }) => {
       return;
     }
 
+    let isMounted = true;
+
     const initializeWebSocket = async () => {
       try {
         const wsClient = getWebSocketClient();
+        if (!isMounted) return;
+
         wsClientRef.current = wsClient;
 
         // Manejadores de eventos
         const handleConnected = () => {
-          console.log('✓ WebSocket conectado');
-          setIsConnected(true);
-          setWsState('OPEN');
-          setError(null);
+          if (isMounted) {
+            console.log('✓ WebSocket conectado');
+            setIsConnected(true);
+            setWsState('OPEN');
+            setError(null);
+          }
         };
 
         const handleDisconnected = () => {
-          console.log('⚠️ WebSocket desconectado');
-          setIsConnected(false);
-          setWsState('CLOSED');
+          if (isMounted) {
+            console.log('⚠️ WebSocket desconectado');
+            setIsConnected(false);
+            setWsState('CLOSED');
+          }
         };
 
         const handleError = (err) => {
-          console.error('❌ Error WebSocket:', err);
-          setError(err?.message || 'Error en conexión WebSocket');
+          if (isMounted) {
+            console.error('❌ Error WebSocket:', err);
+            setError(err?.message || 'Error en conexión WebSocket');
+          }
         };
 
         const handleAuthSuccess = () => {
-          console.log('✅ Autenticación WebSocket exitosa');
+          if (isMounted) {
+            console.log('✅ Autenticación WebSocket exitosa');
+          }
         };
 
         // Agregar listeners
@@ -56,25 +68,30 @@ export const WebSocketProvider = ({ children }) => {
         if (!wsClient.isConnected()) {
           await wsClient.connect(token);
         } else {
-          setIsConnected(true);
-          setWsState(wsClient.getState());
+          if (isMounted) {
+            setIsConnected(true);
+            setWsState(wsClient.getState());
+          }
         }
-
-        // Limpiar listeners al desmontar
-        return () => {
-          wsClient.off('connected', handleConnected);
-          wsClient.off('disconnected', handleDisconnected);
-          wsClient.off('error', handleError);
-          wsClient.off('auth_success', handleAuthSuccess);
-        };
       } catch (err) {
-        console.error('❌ Error inicializando WebSocket:', err);
-        setError(err?.message || 'Error en WebSocket');
+        if (isMounted) {
+          console.error('❌ Error inicializando WebSocket:', err);
+          setError(err?.message || 'Error en WebSocket');
+        }
       }
     };
 
-    const cleanup = initializeWebSocket();
-    return cleanup;
+    initializeWebSocket();
+
+    return () => {
+      isMounted = false;
+      if (wsClientRef.current) {
+        wsClientRef.current.off('connected');
+        wsClientRef.current.off('disconnected');
+        wsClientRef.current.off('error');
+        wsClientRef.current.off('auth_success');
+      }
+    };
   }, [token, user]);
 
   // Limpiar al desmontar el provider

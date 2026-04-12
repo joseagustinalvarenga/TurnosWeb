@@ -12,11 +12,10 @@ async function seedDatabase() {
     const hashedPassword = await bcrypt.hash('password123', 10);
 
     const doctorResult = await query(
-      `INSERT INTO doctors (id, email, password_hash, name, specialization, phone, clinic_name, clinic_address)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `INSERT INTO doctors (email, password_hash, name, specialization, phone, clinic_name, clinic_address)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING id, email, name`,
       [
-        'doctor-001',
         'doctor@example.com',
         hashedPassword,
         'Dr. Juan Pérez',
@@ -31,9 +30,8 @@ async function seedDatabase() {
     console.log('✓ Doctor creado:', doctorResult.rows[0]);
 
     // Crear pacientes de prueba
-    const patients = [
+    const patientsData = [
       {
-        id: 'patient-001',
         name: 'Carlos González',
         email: 'carlos@example.com',
         phone: '+56987654321',
@@ -42,7 +40,6 @@ async function seedDatabase() {
         address: 'Avenida Siempre Viva 123'
       },
       {
-        id: 'patient-002',
         name: 'María López',
         email: 'maria@example.com',
         phone: '+56987654322',
@@ -51,7 +48,6 @@ async function seedDatabase() {
         address: 'Calle Nueva 456'
       },
       {
-        id: 'patient-003',
         name: 'Roberto Martínez',
         email: 'roberto@example.com',
         phone: '+56987654323',
@@ -61,12 +57,13 @@ async function seedDatabase() {
       }
     ];
 
-    for (const patient of patients) {
-      await query(
-        `INSERT INTO patients (id, doctor_id, name, email, phone, date_of_birth, gender, address)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+    const patients = [];
+    for (const patient of patientsData) {
+      const result = await query(
+        `INSERT INTO patients (doctor_id, name, email, phone, date_of_birth, gender, address)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING id, name, email`,
         [
-          patient.id,
           doctorId,
           patient.name,
           patient.email,
@@ -76,6 +73,7 @@ async function seedDatabase() {
           patient.address
         ]
       );
+      patients.push(result.rows[0]);
     }
 
     console.log(`✓ ${patients.length} pacientes creados\n`);
@@ -95,10 +93,9 @@ async function seedDatabase() {
     console.log('✓ Disponibilidades creadas (Lunes a Viernes 09:00-17:00)\n');
 
     // Crear algunas citas de prueba
-    const appointments = [
+    const appointmentsData = [
       {
-        id: 'appt-001',
-        patient_id: patients[0].id,
+        patient_index: 0,
         appointment_date: new Date().toISOString().split('T')[0], // Hoy
         appointment_time: '10:00',
         end_time: '10:30',
@@ -106,8 +103,7 @@ async function seedDatabase() {
         status: 'scheduled'
       },
       {
-        id: 'appt-002',
-        patient_id: patients[1].id,
+        patient_index: 1,
         appointment_date: new Date().toISOString().split('T')[0],
         appointment_time: '11:00',
         end_time: '11:30',
@@ -115,8 +111,7 @@ async function seedDatabase() {
         status: 'scheduled'
       },
       {
-        id: 'appt-003',
-        patient_id: patients[2].id,
+        patient_index: 2,
         appointment_date: new Date().toISOString().split('T')[0],
         appointment_time: '14:00',
         end_time: '14:30',
@@ -125,19 +120,19 @@ async function seedDatabase() {
       }
     ];
 
-    for (let i = 0; i < appointments.length; i++) {
+    for (let i = 0; i < appointmentsData.length; i++) {
+      const appt = appointmentsData[i];
       await query(
-        `INSERT INTO appointments (id, doctor_id, patient_id, appointment_date, appointment_time, end_time, reason_for_visit, status, queue_position)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        `INSERT INTO appointments (doctor_id, patient_id, appointment_date, appointment_time, end_time, reason_for_visit, status, queue_position)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
         [
-          appointments[i].id,
           doctorId,
-          appointments[i].patient_id,
-          appointments[i].appointment_date,
-          appointments[i].appointment_time,
-          appointments[i].end_time,
-          appointments[i].reason_for_visit,
-          appointments[i].status,
+          patients[appt.patient_index].id,
+          appt.appointment_date,
+          appt.appointment_time,
+          appt.end_time,
+          appt.reason_for_visit,
+          appt.status,
           i + 1
         ]
       );

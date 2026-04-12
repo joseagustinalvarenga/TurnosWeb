@@ -42,7 +42,7 @@ export default function DoctorLayout({ children }) {
                   disabled={isLoggingOut}
                   title="Cerrar sesión"
                 >
-                  {isLoggingOut ? '...' : '🚪'}
+                  {isLoggingOut ? 'Saliendo...' : 'Salir'}
                 </button>
               </div>
             </div>

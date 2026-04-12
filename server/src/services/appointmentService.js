@@ -1,20 +1,70 @@
 import { query, transaction } from '../db/config.js';
 import { v4 as uuidv4 } from 'uuid';
+import * as googleCalendarService from './googleCalendarService.js';
+import * as emailService from './emailService.js';
 
 // Crear una cita
 export const createAppointment = async (doctorId, patientId, appointmentData) => {
-  const { appointment_date, appointment_time, end_time, reason_for_visit } = appointmentData;
+  const { appointment_date, appointment_time, end_time, reason_for_visit, insurance_company_id } = appointmentData;
 
   try {
+    console.log('\n📌 === CREAR CITA ===');
+    console.log('Doctor ID:', doctorId);
+    console.log('Patient ID:', patientId);
+    console.log('Fecha:', appointment_date, 'Hora:', appointment_time);
+    if (insurance_company_id) console.log('Obra Social ID:', insurance_company_id);
+
+    const appointmentId = uuidv4();
+    const confirmationToken = uuidv4();
+
     const result = await query(
-      `INSERT INTO appointments (id, doctor_id, patient_id, appointment_date, appointment_time, end_time, reason_for_visit, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, 'scheduled')
+      `INSERT INTO appointments (id, doctor_id, patient_id, appointment_date, appointment_time, end_time, reason_for_visit, status, confirmation_token, insurance_company_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'scheduled', $8, $9)
        RETURNING *`,
-      [uuidv4(), doctorId, patientId, appointment_date, appointment_time, end_time, reason_for_visit]
+      [appointmentId, doctorId, patientId, appointment_date, appointment_time, end_time, reason_for_visit, confirmationToken, insurance_company_id || null]
     );
 
-    return result.rows[0];
+    const appointment = result.rows[0];
+    console.log('✓ Cita insertada en BD');
+    console.log('🔐 Token de confirmación:', confirmationToken.substring(0, 8) + '...');
+
+    // Obtener datos del paciente y doctor para enviar email
+    console.log('📧 Obteniendo datos para enviar email...');
+    const patientResult = await query('SELECT name, email FROM patients WHERE id = $1', [patientId]);
+    const doctorResult = await query('SELECT name, specialization FROM doctors WHERE id = $1', [doctorId]);
+
+    const patient = patientResult.rows[0];
+    const doctor = doctorResult.rows[0];
+
+    // Enviar email de confirmación
+    if (patient && patient.email) {
+      const confirmUrl = `http://localhost:3000/appointment/${confirmationToken}`;
+      await emailService.sendAppointmentConfirmation({
+        to: patient.email,
+        patientName: patient.name,
+        doctorName: doctor.name,
+        doctorSpecialty: doctor.specialization,
+        appointmentDate: appointment_date,
+        appointmentTime: appointment_time,
+        reason: reason_for_visit,
+        confirmUrl: confirmUrl
+      });
+    }
+
+    // Sincronizar con Google Calendar si el doctor tiene conexión
+    console.log('🔄 Llamando a createCalendarEvent...');
+    try {
+      const googleEventId = await googleCalendarService.createCalendarEvent(doctorId, appointment);
+      console.log('Resultado:', googleEventId);
+    } catch (error) {
+      console.error('Error sincronizando con Google Calendar:', error.message);
+      // No lanzar error para no romper el flujo de creación de cita
+    }
+
+    console.log('✓ Cita creada exitosamente\n');
+    return appointment;
   } catch (error) {
+    console.error('Error en createAppointment:', error.message);
     if (error.code === '23505') { // Unique constraint violation
       throw new Error('Ya existe una cita en ese horario');
     }
@@ -29,9 +79,12 @@ export const getAppointmentsByDoctor = async (doctorId, filters = {}) => {
       a.*,
       p.name as patient_name,
       p.phone as patient_phone,
-      p.email as patient_email
+      p.email as patient_email,
+      ic.name as insurance_name,
+      ic.additional_fee as insurance_fee
     FROM appointments a
     JOIN patients p ON a.patient_id = p.id
+    LEFT JOIN insurance_companies ic ON a.insurance_company_id = ic.id
     WHERE a.doctor_id = $1
   `;
 
@@ -99,41 +152,103 @@ export const getAppointmentById = async (appointmentId) => {
 
 // Actualizar cita
 export const updateAppointment = async (appointmentId, updateData) => {
-  const { appointment_date, appointment_time, end_time, status, reason_for_visit, notes, delay_minutes } = updateData;
+  const { appointment_date, appointment_time, end_time, status, reason_for_visit, notes, delay_minutes, insurance_company_id } = updateData;
 
-  const result = await query(
-    `UPDATE appointments
-     SET appointment_date = COALESCE($1, appointment_date),
-         appointment_time = COALESCE($2, appointment_time),
-         end_time = COALESCE($3, end_time),
-         status = COALESCE($4, status),
-         reason_for_visit = COALESCE($5, reason_for_visit),
-         notes = COALESCE($6, notes),
-         delay_minutes = COALESCE($7, delay_minutes),
-         updated_at = CURRENT_TIMESTAMP
-     WHERE id = $8
-     RETURNING *`,
-    [appointment_date, appointment_time, end_time, status, reason_for_visit, notes, delay_minutes, appointmentId]
-  );
+  try {
+    // Obtener cita actual para sincronización
+    const currentResult = await query(
+      'SELECT * FROM appointments WHERE id = $1',
+      [appointmentId]
+    );
 
-  return result.rows[0];
+    const currentAppointment = currentResult.rows[0];
+
+    const result = await query(
+      `UPDATE appointments
+       SET appointment_date = COALESCE($1, appointment_date),
+           appointment_time = COALESCE($2, appointment_time),
+           end_time = COALESCE($3, end_time),
+           status = COALESCE($4, status),
+           reason_for_visit = COALESCE($5, reason_for_visit),
+           notes = COALESCE($6, notes),
+           delay_minutes = COALESCE($7, delay_minutes),
+           insurance_company_id = COALESCE($9, insurance_company_id),
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = $8
+       RETURNING *`,
+      [appointment_date, appointment_time, end_time, status, reason_for_visit, notes, delay_minutes, appointmentId, insurance_company_id]
+    );
+
+    const updatedAppointment = result.rows[0];
+
+    // Sincronizar cambios con Google Calendar si existe el evento
+    if (currentAppointment && currentAppointment.google_event_id) {
+      try {
+        await googleCalendarService.updateCalendarEvent(
+          currentAppointment.doctor_id,
+          currentAppointment.google_event_id,
+          updatedAppointment
+        );
+      } catch (error) {
+        console.error('Error actualizando evento en Google Calendar:', error);
+        // No lanzar error
+      }
+    }
+
+    return updatedAppointment;
+  } catch (error) {
+    throw error;
+  }
 };
 
 // Cancelar cita
 export const cancelAppointment = async (appointmentId) => {
-  const result = await query(
-    `UPDATE appointments
-     SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
-     WHERE id = $1
-     RETURNING *`,
-    [appointmentId]
-  );
+  try {
+    // Obtener la cita para tener acceso a google_event_id
+    const appointmentResult = await query(
+      'SELECT * FROM appointments WHERE id = $1',
+      [appointmentId]
+    );
 
-  return result.rows[0];
+    const appointment = appointmentResult.rows[0];
+
+    const result = await query(
+      `UPDATE appointments
+       SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
+       WHERE id = $1
+       RETURNING *`,
+      [appointmentId]
+    );
+
+    // Eliminar evento de Google Calendar si existe
+    if (appointment && appointment.google_event_id) {
+      try {
+        await googleCalendarService.deleteCalendarEvent(
+          appointment.doctor_id,
+          appointment.google_event_id
+        );
+      } catch (error) {
+        console.error('Error eliminando evento de Google Calendar:', error);
+        // No lanzar error
+      }
+    }
+
+    return result.rows[0];
+  } catch (error) {
+    throw error;
+  }
 };
 
 // Obtener citas del día (para el dashboard)
 export const getAppointmentsForToday = async (doctorId) => {
+  // Primero obtener la fecha de hoy en la zona horaria del cliente
+  const todayResult = await query(
+    `SELECT CURRENT_DATE as today`
+  );
+  const today = todayResult.rows[0].today;
+
+  console.log('📅 Buscando citas para hoy:', today);
+
   const result = await query(
     `SELECT
       a.*,
@@ -142,11 +257,16 @@ export const getAppointmentsForToday = async (doctorId) => {
     FROM appointments a
     JOIN patients p ON a.patient_id = p.id
     WHERE a.doctor_id = $1
-      AND a.appointment_date = CURRENT_DATE
+      AND a.appointment_date = $2
       AND a.status != 'cancelled'
     ORDER BY a.appointment_time ASC`,
-    [doctorId]
+    [doctorId, today]
   );
+
+  console.log('  Citas encontradas:', result.rows.length);
+  result.rows.forEach(apt => {
+    console.log(`  - ${apt.patient_name} a las ${apt.appointment_time}`);
+  });
 
   return result.rows;
 };

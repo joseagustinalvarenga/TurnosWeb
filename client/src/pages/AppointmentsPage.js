@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DoctorLayout from '../components/DoctorLayout';
-import { appointmentAPI } from '../services/api';
+import Icon from '../components/Icon';
+import { appointmentAPI, patientAPI, insuranceAPI } from '../services/api';
 import { useWebSocketContext } from '../hooks/useWebSocketContext';
 import styles from './AppointmentsPage.module.css';
 
@@ -12,28 +13,93 @@ export default function AppointmentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterDate, setFilterDate] = useState('');
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    patientId: '',
+    appointment_date: '',
+    appointment_time: '',
+    reason_for_visit: '',
+    insurance_company_id: ''
+  });
+  const [patients, setPatients] = useState([]);
+  const [formSubmitting, setFormSubmitting] = useState(false);
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [patientInsurances, setPatientInsurances] = useState([]);
   const { isConnected } = useWebSocketContext();
 
-  // Cargar citas
   useEffect(() => {
     fetchAppointments();
+    fetchPatients();
   }, []);
 
-  // Aplicar filtros
+  // Cargar slots disponibles cuando cambia la fecha
+  useEffect(() => {
+    if (formData.appointment_date) {
+      loadAvailableSlots(formData.appointment_date);
+    } else {
+      setAvailableSlots([]);
+    }
+  }, [formData.appointment_date]);
+
+  // Cargar obras sociales del paciente
+  useEffect(() => {
+    if (formData.patientId) {
+      loadPatientInsurances(formData.patientId);
+    } else {
+      setPatientInsurances([]);
+    }
+  }, [formData.patientId]);
+
+  const loadPatientInsurances = async (patientId) => {
+    try {
+      const response = await insuranceAPI.getPatientInsurances(patientId);
+      if (response.success) {
+        setPatientInsurances(response.insurances);
+      }
+    } catch (err) {
+      console.error('Error cargando obras sociales del paciente:', err);
+      setPatientInsurances([]);
+    }
+  };
+
+  const fetchPatients = async () => {
+    try {
+      const response = await patientAPI.getPatients();
+      if (response.success) {
+        setPatients(response.patients);
+      }
+    } catch (err) {
+      console.error('Error cargando pacientes:', err);
+    }
+  };
+
+  const loadAvailableSlots = async (date) => {
+    try {
+      setLoadingSlots(true);
+      const response = await appointmentAPI.getAvailableSlots(date);
+      if (response.success) {
+        setAvailableSlots(response.slots || []);
+      }
+    } catch (err) {
+      console.error('Error cargando horarios disponibles:', err);
+      setAvailableSlots([]);
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
+
   useEffect(() => {
     let filtered = appointments;
 
-    // Filtrar por estado
     if (filterStatus !== 'all') {
       filtered = filtered.filter(a => a.status === filterStatus);
     }
 
-    // Filtrar por fecha
     if (filterDate) {
       filtered = filtered.filter(a => a.appointment_date === filterDate);
     }
 
-    // Filtrar por búsqueda
     if (searchTerm) {
       filtered = filtered.filter(a =>
         a.patient_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -50,7 +116,6 @@ export default function AppointmentsPage() {
       const response = await appointmentAPI.getAppointments();
 
       if (response.success) {
-        // Ordenar por fecha y hora
         const sorted = response.appointments.sort((a, b) => {
           const dateA = new Date(`${a.appointment_date}T${a.appointment_time}`);
           const dateB = new Date(`${b.appointment_date}T${b.appointment_time}`);
@@ -85,36 +150,64 @@ export default function AppointmentsPage() {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'scheduled':
-        return 'scheduled';
-      case 'completed':
-        return 'completed';
-      case 'cancelled':
-        return 'cancelled';
-      default:
-        return 'scheduled';
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleCreateAppointment = async (e) => {
+    e.preventDefault();
+
+    if (!formData.patientId || !formData.appointment_date || !formData.appointment_time) {
+      alert('Por favor completa los campos requeridos');
+      return;
+    }
+
+    try {
+      setFormSubmitting(true);
+      const response = await appointmentAPI.createAppointment(formData);
+
+      if (response.success) {
+        setAppointments(prev => [response.appointment, ...prev]);
+        resetForm();
+        setShowForm(false);
+      }
+    } catch (err) {
+      console.error('Error creando cita:', err);
+      alert('Error al crear la cita');
+    } finally {
+      setFormSubmitting(false);
     }
   };
 
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'scheduled':
-        return '⏳ Pendiente';
-      case 'completed':
-        return '✅ Completada';
-      case 'cancelled':
-        return '❌ Cancelada';
-      default:
-        return status;
-    }
+  const resetForm = () => {
+    setFormData({
+      patientId: '',
+      appointment_date: '',
+      appointment_time: '',
+      reason_for_visit: '',
+      insurance_company_id: ''
+    });
+    setPatientInsurances([]);
+  };
+
+  const getStatusBadge = (status) => {
+    const badges = {
+      scheduled: { label: 'Programado', class: styles.statusScheduled },
+      completed: { label: 'Completado', class: styles.statusCompleted },
+      cancelled: { label: 'Cancelado', class: styles.statusCancelled }
+    };
+    const badge = badges[status] || badges.scheduled;
+    return <span className={`${styles.statusBadge} ${badge.class}`}>{badge.label}</span>;
   };
 
   if (loading) {
     return (
       <DoctorLayout>
-        <div className={styles.loading}>
+        <div className={styles.loadingContainer}>
           <div className={styles.spinner}></div>
           <p>Cargando citas...</p>
         </div>
@@ -124,136 +217,256 @@ export default function AppointmentsPage() {
 
   return (
     <DoctorLayout>
-      <div className={styles.appointmentsPage}>
+      <div className={styles.container}>
         <div className={styles.header}>
-          <h1>📅 Mis Citas</h1>
-          <button className={styles.addBtn}>+ Nueva Cita</button>
-        </div>
-
-        {error && (
-          <div className={styles.alert}>
-            <span>⚠️ {error}</span>
+          <div>
+            <h1 className={styles.title}>Gestión de Citas</h1>
+            <p className={styles.subtitle}>Administra todas tus citas médicas</p>
           </div>
-        )}
-
-        {/* Controles de filtro */}
-        <div className={styles.controls}>
-          <input
-            type="text"
-            placeholder="🔍 Buscar por nombre o teléfono..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className={styles.select}
-          >
-            <option value="all">Todos los estados</option>
-            <option value="scheduled">⏳ Pendiente</option>
-            <option value="completed">✅ Completada</option>
-            <option value="cancelled">❌ Cancelada</option>
-          </select>
-
-          <input
-            type="date"
-            value={filterDate}
-            onChange={(e) => setFilterDate(e.target.value)}
-            className={styles.select}
-          />
-
           <button
-            className={styles.refreshBtn}
-            onClick={fetchAppointments}
-            title="Actualizar"
+            onClick={() => {
+              resetForm();
+              setShowForm(true);
+            }}
+            className={styles.addBtn}
           >
-            🔄
+            <Icon name="plus" size={18} color="currentColor" />
+            Nueva Cita
           </button>
         </div>
 
-        {/* Tabla de citas */}
-        <div className={styles.tableContainer}>
-          {filteredAppointments.length === 0 ? (
-            <div className={styles.emptyState}>
-              <p>No hay citas que coincidan con los filtros 📋</p>
+        {error && <div className={styles.errorBox}>{error}</div>}
+
+        {/* Modal de crear cita */}
+        {showForm && (
+          <div className={styles.modal}>
+            <div className={styles.modalContent}>
+              <div className={styles.modalHeader}>
+                <h2>Nueva Cita</h2>
+                <button
+                  onClick={() => {
+                    setShowForm(false);
+                    resetForm();
+                  }}
+                  className={styles.closeBtn}
+                >
+                  <Icon name="x" size={20} color="currentColor" />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateAppointment} className={styles.form}>
+                <div className={styles.formGroup}>
+                  <label>Paciente*</label>
+                  <select
+                    name="patientId"
+                    value={formData.patientId}
+                    onChange={handleFormChange}
+                    required
+                  >
+                    <option value="">Selecciona un paciente</option>
+                    {patients.map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label>Fecha*</label>
+                    <input
+                      type="date"
+                      name="appointment_date"
+                      value={formData.appointment_date}
+                      onChange={handleFormChange}
+                      required
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Hora*</label>
+                    {formData.appointment_date ? (
+                      loadingSlots ? (
+                        <div className={styles.loadingSlots}>Cargando horarios disponibles...</div>
+                      ) : availableSlots.length > 0 ? (
+                        <select
+                          name="appointment_time"
+                          value={formData.appointment_time}
+                          onChange={handleFormChange}
+                          required
+                        >
+                          <option value="">Selecciona un horario</option>
+                          {availableSlots.map((slot) => (
+                            <option key={slot} value={slot}>
+                              {slot}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <div className={styles.noSlots}>
+                          No hay horarios disponibles para esta fecha
+                        </div>
+                      )
+                    ) : (
+                      <input
+                        type="time"
+                        name="appointment_time"
+                        value={formData.appointment_time}
+                        onChange={handleFormChange}
+                        placeholder="Selecciona una fecha primero"
+                        disabled
+                      />
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>Motivo de la consulta</label>
+                  <input
+                    type="text"
+                    name="reason_for_visit"
+                    placeholder="Ej: Revisión general, Dolor de cabeza..."
+                    value={formData.reason_for_visit}
+                    onChange={handleFormChange}
+                  />
+                </div>
+
+                {patientInsurances.length > 0 && (
+                  <div className={styles.formGroup}>
+                    <label>Obra Social</label>
+                    <select
+                      name="insurance_company_id"
+                      value={formData.insurance_company_id}
+                      onChange={handleFormChange}
+                    >
+                      <option value="">Sin obra social</option>
+                      {patientInsurances.map(insurance => (
+                        <option key={insurance.id} value={insurance.id}>
+                          {insurance.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div className={styles.formActions}>
+                  <button type="submit" className={styles.submitBtn} disabled={formSubmitting}>
+                    {formSubmitting ? 'Creando...' : 'Crear Cita'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowForm(false);
+                      resetForm();
+                    }}
+                    className={styles.cancelBtn}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
             </div>
-          ) : (
-            <table className={styles.table}>
+          </div>
+        )}
+
+        {/* Toolbar de filtros */}
+        <div className={styles.toolbar}>
+          <div className={styles.searchBox}>
+            <Icon name="search" size={18} color="#64748b" />
+            <input
+              type="text"
+              placeholder="Buscar paciente o teléfono..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+          </div>
+
+          <div className={styles.filters}>
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className={styles.select}
+            >
+              <option value="all">Todos los estados</option>
+              <option value="scheduled">Programado</option>
+              <option value="completed">Completado</option>
+              <option value="cancelled">Cancelado</option>
+            </select>
+
+            <input
+              type="date"
+              value={filterDate}
+              onChange={(e) => setFilterDate(e.target.value)}
+              className={styles.select}
+            />
+
+            <button onClick={fetchAppointments} className={styles.refreshBtn} title="Actualizar">
+              <Icon name="search" size={18} color="currentColor" />
+              Actualizar
+            </button>
+          </div>
+        </div>
+
+        {/* Tabla de citas */}
+        {filteredAppointments.length === 0 ? (
+          <div className={styles.emptyState}>
+            <p>No hay citas que coincidan con tus filtros</p>
+          </div>
+        ) : (
+          <div className={styles.tableContainer}>
+            <table className={styles.appointmentsTable}>
               <thead>
                 <tr>
-                  <th>Hora</th>
+                  <th>Fecha y Hora</th>
                   <th>Paciente</th>
-                  <th>Contacto</th>
-                  <th>Fecha</th>
+                  <th>Teléfono</th>
                   <th>Motivo</th>
+                  <th>Obra Social</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredAppointments.map((appt) => (
-                  <tr key={appt.id} className={styles.row}>
-                    <td className={styles.time}>
-                      <strong>{appt.appointment_time}</strong>
+                  <tr key={appt.id}>
+                    <td className={styles.dateTime}>
+                      <div className={styles.date}>
+                        {new Date(appt.appointment_date).toLocaleDateString('es-ES', {
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </div>
+                      <div className={styles.time}>{appt.appointment_time}</div>
                     </td>
-                    <td className={styles.patientName}>
-                      {appt.patient_name}
+                    <td className={styles.patientName}>{appt.patient_name}</td>
+                    <td>
+                      <a href={`tel:${appt.patient_phone}`} className={styles.phone}>
+                        {appt.patient_phone}
+                      </a>
                     </td>
-                    <td className={styles.contact}>
-                      📞 {appt.patient_phone}
-                    </td>
-                    <td className={styles.date}>
-                      {new Date(appt.appointment_date).toLocaleDateString('es-ES', {
-                        weekday: 'short',
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                    </td>
-                    <td className={styles.reason}>
-                      {appt.reason_for_visit || '-'}
-                    </td>
-                    <td className={styles.status}>
+                    <td className={styles.reason}>{appt.reason_for_visit || '-'}</td>
+                    <td className={styles.insurance}>{appt.insurance_name || '-'}</td>
+                    <td>{getStatusBadge(appt.status)}</td>
+                    <td className={styles.actions}>
                       <select
                         value={appt.status}
                         onChange={(e) => handleStatusChange(appt.id, e.target.value)}
-                        className={`${styles.statusSelect} ${styles[getStatusColor(appt.status)]}`}
+                        className={styles.statusSelect}
                       >
-                        <option value="scheduled">⏳ Pendiente</option>
-                        <option value="completed">✅ Completada</option>
-                        <option value="cancelled">❌ Cancelada</option>
+                        <option value="scheduled">Programado</option>
+                        <option value="completed">Completado</option>
+                        <option value="cancelled">Cancelado</option>
                       </select>
-                    </td>
-                    <td className={styles.actions}>
-                      <button
-                        className={styles.editBtn}
-                        title="Editar"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        className={styles.deleteBtn}
-                        title="Cancelar"
-                        onClick={() => handleStatusChange(appt.id, 'cancelled')}
-                      >
-                        🗑️
-                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Resumen */}
-        <div className={styles.summary}>
-          <p>
-            Mostrando <strong>{filteredAppointments.length}</strong> de{' '}
-            <strong>{appointments.length}</strong> citas
-            {isConnected && ' 🟢'}
-          </p>
+        <div className={styles.footer}>
+          <p>Total: <strong>{filteredAppointments.length}</strong> cita(s)</p>
         </div>
       </div>
     </DoctorLayout>

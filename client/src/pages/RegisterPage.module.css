@@ -104,6 +104,54 @@
   cursor: not-allowed;
 }
 
+/* Google Button */
+.googleBtn {
+  width: 100%;
+  padding: var(--spacing-md);
+  background: white;
+  color: var(--dark-gray);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+}
+
+.googleBtn:hover:not(:disabled) {
+  background: var(--light-gray);
+  border-color: var(--gray);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.googleBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin: var(--spacing-lg) 0;
+  color: var(--gray);
+  font-size: var(--font-size-sm);
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-color);
+}
+
 .footer {
   text-align: center;
   border-top: 1px solid var(--border-color);
@@ -122,4 +170,50 @@
 .link:hover {
   color: var(--primary-dark);
   text-decoration: underline;
+}
+
+/* Success Message */
+.successMessage {
+  background: #ecfdf5;
+  border: 1px solid #d1fae5;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
+}
+
+.successIcon {
+  font-size: 3rem;
+  color: #10b981;
+  margin-bottom: var(--spacing-md);
+  display: block;
+}
+
+.successMessage p {
+  color: #065f46;
+  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+}
+
+.successMessage p:last-child {
+  margin-bottom: 0;
+}
+
+.backLink {
+  display: inline-block;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: 1px solid var(--primary-color);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+  width: 100%;
+  text-align: center;
+}
+
+.backLink:hover {
+  background-color: var(--primary-color);
+  color: white;
 }

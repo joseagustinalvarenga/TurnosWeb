@@ -3,6 +3,7 @@ import DoctorLayout from '../components/DoctorLayout';
 import { useAuth } from '../hooks/useAuth';
 import { useWebSocketContext } from '../hooks/useWebSocketContext';
 import { doctorAPI, appointmentAPI } from '../services/api';
+import Icon from '../components/Icon';
 import styles from './DashboardNewPage.module.css';
 
 export default function DashboardNewPage() {
@@ -20,32 +21,44 @@ export default function DashboardNewPage() {
   const [todayAppointments, setTodayAppointments] = useState([]);
   const [error, setError] = useState(null);
 
-  // Cargar datos del dashboard
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
 
-        // Obtener estadísticas
         const dashboardRes = await doctorAPI.getDashboard();
         if (dashboardRes.success) {
           setStats(dashboardRes.stats);
         }
 
-        // Obtener citas de hoy
         const appointmentsRes = await appointmentAPI.getAppointments();
         if (appointmentsRes.success) {
-          const today = new Date().toISOString().split('T')[0];
-          const todayAppts = appointmentsRes.appointments.filter(
-            appt => appt.appointment_date === today && appt.status !== 'cancelled'
-          );
+          // Obtener hoy en zona horaria local (no UTC)
+          const now = new Date();
+          const today = now.getFullYear() + '-' +
+                       String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                       String(now.getDate()).padStart(2, '0');
+
+          console.log('Dashboard - Buscando citas para:', today);
+
+          const todayAppts = appointmentsRes.appointments
+            .filter(appt => {
+              // Extraer solo la fecha sin la hora/timezone
+              const apptDate = appt.appointment_date instanceof Date
+                ? appt.appointment_date.toISOString().split('T')[0]
+                : String(appt.appointment_date).split('T')[0];
+              return apptDate === today && appt.status !== 'cancelled';
+            })
+            .sort((a, b) => a.appointment_time.localeCompare(b.appointment_time));
+
+          console.log('Dashboard - Citas encontradas:', todayAppts.length);
           setTodayAppointments(todayAppts);
         }
 
         setError(null);
       } catch (err) {
         console.error('Error cargando dashboard:', err);
-        setError('Error al cargar los datos del dashboard');
+        setError('Error al cargar los datos');
       } finally {
         setLoading(false);
       }
@@ -54,23 +67,30 @@ export default function DashboardNewPage() {
     fetchDashboardData();
   }, []);
 
-  const StatCard = ({ icon, label, value, trend, color = 'primary' }) => (
+  const StatCard = ({ label, value, subtext, color = 'primary' }) => (
     <div className={`${styles.statCard} ${styles[color]}`}>
-      <div className={styles.statIcon}>{icon}</div>
-      <div className={styles.statContent}>
-        <p className={styles.statLabel}>{label}</p>
-        <p className={styles.statValue}>{value}</p>
-        {trend && <span className={styles.statTrend}>{trend}</span>}
-      </div>
+      <div className={styles.statValue}>{value}</div>
+      <div className={styles.statLabel}>{label}</div>
+      {subtext && <div className={styles.statSubtext}>{subtext}</div>}
     </div>
   );
+
+  const getStatusBadge = (status) => {
+    const badges = {
+      scheduled: { label: 'PROGRAMADO', class: styles.statusScheduled },
+      completed: { label: 'COMPLETADO', class: styles.statusCompleted },
+      cancelled: { label: 'CANCELADO', class: styles.statusCancelled }
+    };
+    const badge = badges[status] || badges.scheduled;
+    return <span className={`${styles.statusBadge} ${badge.class}`}>{badge.label}</span>;
+  };
 
   if (loading) {
     return (
       <DoctorLayout>
-        <div className={styles.loading}>
+        <div className={styles.loadingContainer}>
           <div className={styles.spinner}></div>
-          <p>Cargando dashboard...</p>
+          <p>Cargando datos...</p>
         </div>
       </DoctorLayout>
     );
@@ -78,117 +98,72 @@ export default function DashboardNewPage() {
 
   return (
     <DoctorLayout>
-      <div className={styles.dashboard}>
-        {error && (
-          <div className={styles.alert}>
-            <span>⚠️ {error}</span>
+      <div className={styles.container}>
+        {/* Header */}
+        <div className={styles.pageHeader}>
+          <div>
+            <h1 className={styles.title}>Dashboard</h1>
+            <p className={styles.subtitle}>Bienvenido, Dr. {user?.name}</p>
           </div>
-        )}
-
-        <div className={styles.header}>
-          <h1>📊 Dashboard</h1>
-          <p className={styles.subtitle}>
-            Bienvenido, {user?.name} {isConnected && '🟢'}
-          </p>
+          <div className={styles.connectionStatus}>
+            <div className={`${styles.statusIndicator} ${isConnected ? styles.connected : ''}`}></div>
+            <span>{isConnected ? 'Conectado' : 'Desconectado'}</span>
+          </div>
         </div>
 
-        {/* Grid de estadísticas */}
+        {error && <div className={styles.errorBox}>{error}</div>}
+
+        {/* Stats Grid */}
         <div className={styles.statsGrid}>
-          <StatCard
-            icon="📅"
-            label="Citas Totales"
-            value={stats.total_appointments}
-            color="primary"
-          />
-          <StatCard
-            icon="⏳"
-            label="Citas Hoy"
-            value={stats.appointments_today}
-            color="info"
-          />
-          <StatCard
-            icon="🔔"
-            label="Pendientes"
-            value={stats.pending_appointments}
-            color="warning"
-          />
-          <StatCard
-            icon="👥"
-            label="Pacientes"
-            value={stats.total_patients}
-            color="success"
-          />
-          <StatCard
-            icon="✅"
-            label="Completadas"
-            value={stats.completed_appointments}
-            trend="+5 esta semana"
-            color="success"
-          />
-          <StatCard
-            icon="❌"
-            label="Canceladas"
-            value={stats.cancelled_appointments}
-            color="danger"
-          />
+          <StatCard label="Completados" value={stats.completed_appointments} color="success" />
+          <StatCard label="En Espera" value={stats.pending_appointments} color="warning" />
+          <StatCard label="Promedio" value={stats.appointments_today || 0} subtext="Citas hoy" color="primary" />
+          <StatCard label="Pacientes" value={stats.total_patients} color="info" />
         </div>
 
-        {/* Citas de hoy */}
-        <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2>📅 Citas de Hoy</h2>
-            <a href="/appointments" className={styles.seeAll}>
-              Ver todas →
-            </a>
-          </div>
+        {/* Appointments Table */}
+        <div className={styles.appointmentsSection}>
+          <h2 className={styles.sectionTitle}>Turnos de Hoy</h2>
 
           {todayAppointments.length === 0 ? (
             <div className={styles.emptyState}>
-              <p>No hay citas programadas para hoy 🎉</p>
+              <p>No hay citas programadas para hoy</p>
             </div>
           ) : (
-            <div className={styles.appointmentsList}>
-              {todayAppointments.slice(0, 5).map((appt) => (
-                <div key={appt.id} className={styles.appointmentItem}>
-                  <div className={styles.apptTime}>
-                    <span className={styles.time}>
-                      {appt.appointment_time}
-                    </span>
-                  </div>
-                  <div className={styles.apptInfo}>
-                    <p className={styles.patientName}>
-                      {appt.patient_name}
-                    </p>
-                    <p className={styles.patientContact}>
-                      📞 {appt.patient_phone}
-                    </p>
-                  </div>
-                  <div className={styles.apptStatus}>
-                    <span className={`${styles.badge} ${styles[appt.status]}`}>
-                      {appt.status === 'scheduled' && '⏳ Pendiente'}
-                      {appt.status === 'completed' && '✅ Completada'}
-                      {appt.status === 'cancelled' && '❌ Cancelada'}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <table className={styles.appointmentsTable}>
+              <thead>
+                <tr>
+                  <th>Posición</th>
+                  <th>Paciente</th>
+                  <th>Hora</th>
+                  <th>Estado</th>
+                  <th>Duración</th>
+                </tr>
+              </thead>
+              <tbody>
+                {todayAppointments.map((appt, index) => (
+                  <tr key={appt.id}>
+                    <td className={styles.positionCell}>{index + 1}</td>
+                    <td className={styles.patientName}>{appt.patient_name}</td>
+                    <td className={styles.time}>{appt.appointment_time}</td>
+                    <td>{getStatusBadge(appt.status)}</td>
+                    <td>30 min</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
 
-        {/* Estadísticas rápidas */}
-        <div className={styles.quickStats}>
-          <div className={styles.quickStatItem}>
-            <h4>⏱️ Velocidad Promedio</h4>
-            <p>Citas en tiempo</p>
+        {/* Session Info */}
+        <div className={styles.sessionInfo}>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Inicio de sesión</span>
+            <span className={styles.infoValue}>{new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</span>
           </div>
-          <div className={styles.quickStatItem}>
-            <h4>⭐ Calificación</h4>
-            <p>Excelente servicio</p>
-          </div>
-          <div className={styles.quickStatItem}>
-            <h4>🎯 Tasa Asistencia</h4>
-            <p>95% de citas</p>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Estado</span>
+            <span className={styles.infoValue}>{isConnected ? 'Activo' : 'Inactivo'}</span>
           </div>
         </div>
       </div>

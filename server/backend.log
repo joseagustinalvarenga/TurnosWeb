@@ -1,0 +1,476 @@
+
+> consultorio-medico-server@1.0.0 dev
+> nodemon src/app.js
+
+[33m[nodemon] 3.1.14[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[32m[nodemon] starting `node src/app.js`[39m
+🔌 Configurando WebSocket...
+✅ WebSocket servidor configurado correctamente
+
+🚀 Servidor iniciado en http://localhost:5000
+📊 Health check: http://localhost:5000/health
+🔌 WebSocket disponible en ws://localhost:5001
+
+✓ [2026-04-12T01:16:44.492Z] GET /health - 200 (5ms)
+✓ [2026-04-12T01:17:03.075Z] GET /health - 200 (1ms)
+✓ Conexión a PostgreSQL establecida
+✓ [2026-04-12T01:17:43.700Z] POST /login - 200 (132ms)
+❌ [2026-04-12T01:17:43.765Z] GET /dashboard - 403 (3ms)
+❌ [2026-04-12T01:17:43.769Z] GET /dashboard - 403 (1ms)
+✓ [2026-04-12T01:17:43.770Z] GET /verify - 200 (5ms)
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/app.js`[39m
+🔌 Configurando WebSocket...
+✅ WebSocket servidor configurado correctamente
+
+🚀 Servidor iniciado en http://localhost:5002
+📊 Health check: http://localhost:5002/health
+🔌 WebSocket disponible en ws://localhost:5001
+
+✓ Conexión a PostgreSQL establecida
+✓ [2026-04-12T01:23:14.940Z] GET /verify - 304 (55ms)
+✓ [2026-04-12T01:23:14.943Z] GET /verify - 304 (2ms)
+❌ [2026-04-12T01:23:16.206Z] GET /dashboard - 403 (2ms)
+❌ [2026-04-12T01:23:16.208Z] GET /dashboard - 403 (2ms)
+✓ Conexión a PostgreSQL establecida
+✓ [2026-04-12T01:24:46.492Z] GET /verify - 304 (44ms)
+✓ [2026-04-12T01:24:46.495Z] GET /verify - 304 (2ms)
+✓ Conexión a PostgreSQL establecida
+✓ [2026-04-12T01:25:44.097Z] GET /verify - 304 (50ms)
+✓ [2026-04-12T01:25:44.100Z] GET /verify - 304 (2ms)
+✓ Nueva conexión WebSocket. Clientes conectados: 1
+✓ Nueva conexión WebSocket. Clientes conectados: 2
+✓ Cliente autenticado: doctor@example.com (undefined)
+  Clientes totales conectados: 1
+❌ [2026-04-12T01:26:10.068Z] GET /dashboard - 403 (1ms)
+❌ [2026-04-12T01:26:10.069Z] GET /dashboard - 403 (0ms)
+✓ Cliente desconectado: null
+✓ Nueva conexión WebSocket. Clientes conectados: 2
+✓ Cliente autenticado: doctor@example.com (undefined)
+  Clientes totales conectados: 2
+✓ Cliente desconectado: 614769b8-51ec-4d2d-923e-53d8f47b9537-1775957144122
+✓ Cliente desconectado: 614769b8-51ec-4d2d-923e-53d8f47b9537-1775957187894
+✓ Conexión a PostgreSQL establecida
+✓ [2026-04-12T01:26:33.164Z] GET /verify - 304 (44ms)
+✓ [2026-04-12T01:26:33.166Z] GET /verify - 304 (2ms)
+✓ Nueva conexión WebSocket. Clientes conectados: 1
+❌ [2026-04-12T01:26:33.192Z] GET /dashboard - 403 (1ms)
+❌ [2026-04-12T01:26:33.193Z] GET /dashboard - 403 (1ms)
+✓ Nueva conexión WebSocket. Clientes conectados: 2
+✓ Cliente autenticado: doctor@example.com (undefined)
+  Clientes totales conectados: 1
+✓ [2026-04-12T01:26:35.366Z] POST /logout - 200 (1ms)
+✓ [2026-04-12T01:26:36.761Z] POST /login - 200 (87ms)
+✓ [2026-04-12T01:26:36.782Z] GET /verify - 304 (3ms)
+✓ Conexión a PostgreSQL establecida
+✓ [2026-04-12T01:26:36.828Z] GET /dashboard - 200 (47ms)
+✓ [2026-04-12T01:26:36.831Z] GET /dashboard - 304 (3ms)
+✓ [2026-04-12T01:26:36.835Z] GET / - 200 (2ms)
+✓ [2026-04-12T01:26:36.837Z] GET / - 304 (1ms)
+✓ [2026-04-12T01:26:40.769Z] GET / - 304 (2ms)
+✓ [2026-04-12T01:26:40.771Z] GET / - 304 (2ms)
+✓ [2026-04-12T01:26:42.838Z] GET / - 200 (2ms)
+✓ [2026-04-12T01:26:42.840Z] GET / - 304 (1ms)
+✓ [2026-04-12T01:26:46.861Z] GET /dashboard - 304 (2ms)
+✓ [2026-04-12T01:26:46.864Z] GET /dashboard - 304 (2ms)
+✓ [2026-04-12T01:26:46.868Z] GET / - 304 (1ms)
+✓ [2026-04-12T01:26:46.870Z] GET / - 304 (1ms)
+✓ Cliente desconectado: null
+✓ Cliente desconectado: 614769b8-51ec-4d2d-923e-53d8f47b9537-1775957193201
+✓ [2026-04-12T01:27:07.366Z] GET /verify - 304 (3ms)
+✓ [2026-04-12T01:27:07.368Z] GET /verify - 304 (1ms)
+✓ Nueva conexión WebSocket. Clientes conectados: 1
+✓ Nueva conexión WebSocket. Clientes conectados: 2
+✓ Cliente autenticado: doctor@example.com (doctor)
+  Clientes totales conectados: 1
+✓ Cliente desconectado: null
+✓ Nueva conexión WebSocket. Clientes conectados: 2
+✓ Cliente autenticado: doctor@example.com (doctor)
+  Clientes totales conectados: 2
+✓ Conexión a PostgreSQL establecida
+✓ [2026-04-12T01:29:22.806Z] GET / - 304 (47ms)
+✓ [2026-04-12T01:29:22.808Z] GET / - 304 (2ms)
+✓ Cliente desconectado: 614769b8-51ec-4d2d-923e-53d8f47b9537-1775957227401
+✓ Cliente desconectado: 614769b8-51ec-4d2d-923e-53d8f47b9537-1775957278050
+✓ Conexión a PostgreSQL establecida
+✓ [2026-04-12T02:19:46.169Z] GET /verify - 304 (52ms)
+✓ [2026-04-12T02:19:46.171Z] GET /verify - 304 (1ms)
+✓ Nueva conexión WebSocket. Clientes conectados: 1
+✓ Nueva conexión WebSocket. Clientes conectados: 2
+✓ Cliente autenticado: doctor@example.com (doctor)
+  Clientes totales conectados: 1
+✓ [2026-04-12T02:19:46.234Z] GET /dashboard - 304 (11ms)
+✓ [2026-04-12T02:19:46.238Z] GET /dashboard - 304 (3ms)
+✓ [2026-04-12T02:19:46.244Z] GET / - 304 (2ms)
+✓ [2026-04-12T02:19:46.246Z] GET / - 304 (1ms)
+✓ Cliente desconectado: null
+✓ Nueva conexión WebSocket. Clientes conectados: 2
+✓ Cliente autenticado: doctor@example.com (doctor)
+  Clientes totales conectados: 2
+✓ Conexión a PostgreSQL establecida
+✓ [2026-04-12T02:56:01.256Z] GET /dashboard - 304 (53ms)
+✓ [2026-04-12T02:56:01.266Z] GET / - 304 (2ms)
+✓ Conexión a PostgreSQL establecida
+✓ [2026-04-12T02:56:39.263Z] GET /dashboard - 304 (71ms)
+✓ [2026-04-12T02:56:39.273Z] GET / - 304 (2ms)
+✓ [2026-04-12T03:53:33.582Z] POST /logout - 200 (26ms)
+✓ Conexión a PostgreSQL establecida
+✓ [2026-04-12T03:53:36.415Z] POST /login - 200 (147ms)
+✓ [2026-04-12T03:53:36.452Z] GET /verify - 304 (3ms)
+✓ [2026-04-12T03:53:36.459Z] GET /dashboard - 200 (7ms)
+✓ [2026-04-12T03:53:36.462Z] GET /dashboard - 304 (2ms)
+✓ [2026-04-12T03:53:36.473Z] GET / - 304 (2ms)
+✓ [2026-04-12T03:53:36.475Z] GET / - 304 (2ms)
+✓ Cliente desconectado: 614769b8-51ec-4d2d-923e-53d8f47b9537-1775960386222
+✓ Cliente desconectado: 614769b8-51ec-4d2d-923e-53d8f47b9537-1775960428054
+✓ [2026-04-12T03:53:41.456Z] GET /verify - 304 (1ms)
+✓ [2026-04-12T03:53:41.458Z] GET /verify - 304 (1ms)
+✓ Nueva conexión WebSocket. Clientes conectados: 1
+✓ Nueva conexión WebSocket. Clientes conectados: 2
+✓ Cliente autenticado: doctor@example.com (doctor)
+  Clientes totales conectados: 1
+✓ Cliente desconectado: null
+✓ Cliente desconectado: 614769b8-51ec-4d2d-923e-53d8f47b9537-1775966021478
+✓ [2026-04-12T03:53:54.204Z] GET /verify - 304 (2ms)
+✓ [2026-04-12T03:53:54.206Z] GET /verify - 304 (2ms)
+✓ Nueva conexión WebSocket. Clientes conectados: 1
+✓ Nueva conexión WebSocket. Clientes conectados: 2
+✓ Cliente autenticado: doctor@example.com (doctor)
+  Clientes totales conectados: 1
+✓ Cliente desconectado: null
+✓ Nueva conexión WebSocket. Clientes conectados: 2
+✓ Cliente autenticado: doctor@example.com (doctor)
+  Clientes totales conectados: 2
+✓ Cliente desconectado: 614769b8-51ec-4d2d-923e-53d8f47b9537-1775966034254
+✓ Cliente desconectado: 614769b8-51ec-4d2d-923e-53d8f47b9537-1775966068204
+✓ Conexión a PostgreSQL establecida
+✓ [2026-04-12T17:10:53.230Z] GET /verify - 304 (59ms)
+✓ [2026-04-12T17:10:53.233Z] GET /verify - 304 (2ms)
+✓ Nueva conexión WebSocket. Clientes conectados: 1
+✓ Nueva conexión WebSocket. Clientes conectados: 2
+✓ Cliente autenticado: doctor@example.com (doctor)
+  Clientes totales conectados: 1
+✓ [2026-04-12T17:10:53.282Z] GET /dashboard - 304 (10ms)
+✓ [2026-04-12T17:10:53.293Z] GET /dashboard - 304 (11ms)
+✓ [2026-04-12T17:10:53.299Z] GET / - 304 (3ms)
+✓ [2026-04-12T17:10:53.301Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:10:58.447Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:10:58.449Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:11:03.407Z] PATCH /eb475154-51e5-4947-8f54-2491caa00d3a - 200 (11ms)
+✓ [2026-04-12T17:11:08.288Z] GET / - 304 (39ms)
+✓ [2026-04-12T17:11:08.290Z] GET / - 304 (1ms)
+✓ [2026-04-12T17:11:24.761Z] GET /dashboard - 200 (3ms)
+✓ [2026-04-12T17:11:24.764Z] GET /dashboard - 304 (2ms)
+✓ [2026-04-12T17:11:24.768Z] GET / - 200 (1ms)
+✓ [2026-04-12T17:11:24.769Z] GET / - 304 (1ms)
+✓ [2026-04-12T17:11:33.221Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:11:33.223Z] GET / - 304 (1ms)
+✓ [2026-04-12T17:11:33.720Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:11:33.722Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:11:34.085Z] GET /dashboard - 304 (2ms)
+✓ [2026-04-12T17:11:34.088Z] GET /dashboard - 304 (2ms)
+✓ [2026-04-12T17:11:34.090Z] GET / - 304 (1ms)
+✓ [2026-04-12T17:11:34.114Z] GET / - 304 (1ms)
+✓ [2026-04-12T17:11:34.609Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:11:34.612Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:11:37.194Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:11:37.195Z] GET / - 304 (1ms)
+✓ [2026-04-12T17:11:38.803Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:11:38.805Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:11:40.927Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:11:42.223Z] GET / - 304 (2ms)
+✓ Cliente desconectado: null
+✓ [2026-04-12T17:11:43.622Z] GET /dashboard - 304 (3ms)
+✓ [2026-04-12T17:11:43.625Z] GET /dashboard - 304 (2ms)
+✓ [2026-04-12T17:11:43.626Z] GET / - 304 (1ms)
+✓ [2026-04-12T17:11:43.629Z] GET / - 304 (2ms)
+✓ Nueva conexión WebSocket. Clientes conectados: 2
+✓ Cliente autenticado: doctor@example.com (doctor)
+  Clientes totales conectados: 2
+✓ [2026-04-12T17:11:47.980Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:11:47.982Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:11:49.400Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:11:49.402Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:11:52.886Z] GET /dashboard - 304 (3ms)
+✓ [2026-04-12T17:11:52.889Z] GET /dashboard - 304 (3ms)
+✓ [2026-04-12T17:11:52.893Z] GET / - 304 (1ms)
+✓ [2026-04-12T17:11:52.895Z] GET / - 304 (2ms)
+✓ Cliente desconectado: 614769b8-51ec-4d2d-923e-53d8f47b9537-1776013853270
+✓ Cliente desconectado: 614769b8-51ec-4d2d-923e-53d8f47b9537-1776013905923
+✓ Conexión a PostgreSQL establecida
+✓ [2026-04-12T17:14:54.496Z] GET /verify - 304 (50ms)
+✓ [2026-04-12T17:14:54.498Z] GET /verify - 304 (1ms)
+✓ Nueva conexión WebSocket. Clientes conectados: 1
+✓ Nueva conexión WebSocket. Clientes conectados: 2
+✓ Cliente autenticado: doctor@example.com (doctor)
+  Clientes totales conectados: 1
+✓ [2026-04-12T17:14:54.561Z] GET /dashboard - 304 (7ms)
+✓ [2026-04-12T17:14:54.564Z] GET /dashboard - 304 (3ms)
+✓ [2026-04-12T17:14:54.569Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:14:54.571Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:14:56.006Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:14:56.008Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:15:04.874Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:15:04.876Z] GET / - 304 (1ms)
+✓ [2026-04-12T17:15:06.122Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:15:06.149Z] GET / - 304 (2ms)
+✓ Cliente desconectado: null
+✓ Nueva conexión WebSocket. Clientes conectados: 2
+✓ Cliente autenticado: doctor@example.com (doctor)
+  Clientes totales conectados: 2
+✓ Conexión a PostgreSQL establecida
+✓ [2026-04-12T17:15:55.081Z] GET / - 304 (52ms)
+✓ [2026-04-12T17:15:57.027Z] GET / - 304 (1ms)
+✓ [2026-04-12T17:15:57.031Z] GET / - 304 (1ms)
+✓ [2026-04-12T17:16:20.547Z] GET /verify - 304 (3ms)
+✓ [2026-04-12T17:16:20.550Z] GET /verify - 304 (2ms)
+✓ Nueva conexión WebSocket. Clientes conectados: 3
+✓ Nueva conexión WebSocket. Clientes conectados: 4
+✓ Cliente autenticado: doctor@example.com (doctor)
+  Clientes totales conectados: 3
+✓ [2026-04-12T17:16:20.599Z] GET /dashboard - 304 (4ms)
+✓ [2026-04-12T17:16:20.602Z] GET /dashboard - 304 (2ms)
+✓ [2026-04-12T17:16:20.607Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:16:20.609Z] GET / - 304 (2ms)
+✓ Cliente desconectado: 614769b8-51ec-4d2d-923e-53d8f47b9537-1776014094552
+✓ Cliente desconectado: 614769b8-51ec-4d2d-923e-53d8f47b9537-1776014146021
+✓ [2026-04-12T17:16:22.061Z] GET / - 304 (3ms)
+✓ [2026-04-12T17:16:22.063Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:16:22.065Z] GET / - 304 (2ms)
+✓ [2026-04-12T17:16:22.067Z] GET / - 304 (1ms)
+✓ Conexión a PostgreSQL establecida
+❌ [2026-04-12T17:16:53.178Z] POST / - 400 (71ms)
+✓ Cliente desconectado: null
+✓ Cliente desconectado: 614769b8-51ec-4d2d-923e-53d8f47b9537-1776014180597
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/app.js`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/app.js`[39m
+🔌 Configurando WebSocket...
+✅ WebSocket servidor configurado correctamente
+❌ Uncaught Exception: Error: listen EADDRINUSE: address already in use ::1:5002
+    at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+    at listenInCluster (node:net:1996:12)
+    at GetAddrInfoReqWrap.callback (node:net:2205:7)
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:134:8) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::1',
+  port: 5002
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/app.js`[39m
+🔌 Configurando WebSocket...
+✅ WebSocket servidor configurado correctamente
+❌ Uncaught Exception: Error: listen EADDRINUSE: address already in use ::1:5002
+    at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+    at listenInCluster (node:net:1996:12)
+    at GetAddrInfoReqWrap.callback (node:net:2205:7)
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:134:8) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::1',
+  port: 5002
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/app.js`[39m
+🔌 Configurando WebSocket...
+✅ WebSocket servidor configurado correctamente
+❌ Uncaught Exception: Error: listen EADDRINUSE: address already in use ::1:5002
+    at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+    at listenInCluster (node:net:1996:12)
+    at GetAddrInfoReqWrap.callback (node:net:2205:7)
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:134:8) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::1',
+  port: 5002
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/app.js`[39m
+🔌 Configurando WebSocket...
+✅ WebSocket servidor configurado correctamente
+❌ Uncaught Exception: Error: listen EADDRINUSE: address already in use ::1:5002
+    at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+    at listenInCluster (node:net:1996:12)
+    at GetAddrInfoReqWrap.callback (node:net:2205:7)
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:134:8) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::1',
+  port: 5002
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/app.js`[39m
+🔌 Configurando WebSocket...
+✅ WebSocket servidor configurado correctamente
+❌ Uncaught Exception: Error: listen EADDRINUSE: address already in use ::1:5002
+    at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+    at listenInCluster (node:net:1996:12)
+    at GetAddrInfoReqWrap.callback (node:net:2205:7)
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:134:8) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::1',
+  port: 5002
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/app.js`[39m
+🔌 Configurando WebSocket...
+✅ WebSocket servidor configurado correctamente
+❌ Uncaught Exception: Error: listen EADDRINUSE: address already in use ::1:5002
+    at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+    at listenInCluster (node:net:1996:12)
+    at GetAddrInfoReqWrap.callback (node:net:2205:7)
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:134:8) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::1',
+  port: 5002
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/app.js`[39m
+🔌 Configurando WebSocket...
+✅ WebSocket servidor configurado correctamente
+❌ Uncaught Exception: Error: listen EADDRINUSE: address already in use ::1:5002
+    at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+    at listenInCluster (node:net:1996:12)
+    at GetAddrInfoReqWrap.callback (node:net:2205:7)
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:134:8) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::1',
+  port: 5002
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/app.js`[39m
+🔌 Configurando WebSocket...
+✅ WebSocket servidor configurado correctamente
+❌ Uncaught Exception: Error: listen EADDRINUSE: address already in use ::1:5002
+    at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+    at listenInCluster (node:net:1996:12)
+    at GetAddrInfoReqWrap.callback (node:net:2205:7)
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:134:8) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::1',
+  port: 5002
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/app.js`[39m
+🔌 Configurando WebSocket...
+✅ WebSocket servidor configurado correctamente
+❌ Uncaught Exception: Error: listen EADDRINUSE: address already in use ::1:5002
+    at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+    at listenInCluster (node:net:1996:12)
+    at GetAddrInfoReqWrap.callback (node:net:2205:7)
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:134:8) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::1',
+  port: 5002
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/app.js`[39m
+(node:22364) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 exit listeners added to [Bus]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔌 Configurando WebSocket...
+✅ WebSocket servidor configurado correctamente
+❌ Uncaught Exception: Error: listen EADDRINUSE: address already in use ::1:5002
+    at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+    at listenInCluster (node:net:1996:12)
+    at GetAddrInfoReqWrap.callback (node:net:2205:7)
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:134:8) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::1',
+  port: 5002
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/app.js`[39m
+🔌 Configurando WebSocket...
+✅ WebSocket servidor configurado correctamente
+❌ Uncaught Exception: Error: listen EADDRINUSE: address already in use ::1:5002
+    at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+    at listenInCluster (node:net:1996:12)
+    at GetAddrInfoReqWrap.callback (node:net:2205:7)
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:134:8) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::1',
+  port: 5002
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/app.js`[39m
+🔌 Configurando WebSocket...
+✅ WebSocket servidor configurado correctamente
+❌ Uncaught Exception: Error: listen EADDRINUSE: address already in use ::1:5002
+    at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+    at listenInCluster (node:net:1996:12)
+    at GetAddrInfoReqWrap.callback (node:net:2205:7)
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:134:8) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::1',
+  port: 5002
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/app.js`[39m
+🔌 Configurando WebSocket...
+✅ WebSocket servidor configurado correctamente
+❌ Uncaught Exception: Error: listen EADDRINUSE: address already in use ::1:5002
+    at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+    at listenInCluster (node:net:1996:12)
+    at GetAddrInfoReqWrap.callback (node:net:2205:7)
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:134:8) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::1',
+  port: 5002
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/app.js`[39m
+🔌 Configurando WebSocket...
+✅ WebSocket servidor configurado correctamente
+❌ Uncaught Exception: Error: listen EADDRINUSE: address already in use ::1:5002
+    at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+    at listenInCluster (node:net:1996:12)
+    at GetAddrInfoReqWrap.callback (node:net:2205:7)
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:134:8) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::1',
+  port: 5002
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m

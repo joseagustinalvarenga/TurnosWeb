@@ -49,7 +49,25 @@ export const AuthProvider = ({ children }) => {
         return { success: false, error: response.message };
       }
     } catch (err) {
-      const message = err.response?.data?.message || 'Error al iniciar sesión';
+      const errorData = err.response?.data;
+      const message = errorData?.message || 'Error al iniciar sesión';
+
+      // Manejar errores especiales
+      if (errorData?.pending) {
+        setError(message);
+        return { success: false, error: message, pending: true };
+      }
+
+      if (errorData?.subscriptionExpired) {
+        setError(message);
+        return { success: false, error: message, subscriptionExpired: true };
+      }
+
+      if (errorData?.rejected || errorData?.suspended) {
+        setError(message);
+        return { success: false, error: message };
+      }
+
       setError(message);
       return { success: false, error: message };
     } finally {
@@ -63,6 +81,11 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authAPI.register(data);
       if (response.success) {
+        // Si la respuesta es pending, no hay token
+        if (response.pending) {
+          return { success: true, pending: true, message: response.message };
+        }
+        // Caso normal con token (después cuando MercadoPago esté implementado)
         const { token, doctor } = response;
         localStorage.setItem('token', token);
         setToken(token);
@@ -95,15 +118,34 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithGoogle = async (jwtToken) => {
+    try {
+      localStorage.setItem('token', jwtToken);
+      setToken(jwtToken);
+      // El useEffect de verificación de token se encargará de cargar los datos del usuario
+      return { success: true };
+    } catch (err) {
+      console.error('Error en loginWithGoogle:', err);
+      return { success: false, error: 'Error al procesar login con Google' };
+    }
+  };
+
+  // Computed values
+  const isPending = user?.status === 'pending';
+  const isSubscriptionExpired = user?.subscription_status === 'expired';
+
   const value = {
     user,
     token,
     loading,
     error,
-    isAuthenticated: !!user && !!token,
+    isAuthenticated: !!user && !!token && !isPending && !isSubscriptionExpired,
+    isPending,
+    isSubscriptionExpired,
     login,
     register,
     logout,
+    loginWithGoogle,
     setError
   };
 

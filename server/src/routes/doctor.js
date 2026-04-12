@@ -1,6 +1,8 @@
 import express from 'express';
 import { verifyToken, verifyDoctorRole } from '../middleware/auth.js';
-import { query } from '../db/config.js';
+import { query, transaction } from '../db/config.js';
+import { getAppointmentsForToday, getAppointmentsByDoctor } from '../services/appointmentService.js';
+import { getPatientsByDoctor } from '../services/patientService.js';
 
 const router = express.Router();
 
@@ -75,9 +77,6 @@ router.patch('/profile', verifyToken, verifyDoctorRole, async (req, res) => {
 // Dashboard del doctor (resumen)
 router.get('/dashboard', verifyToken, verifyDoctorRole, async (req, res) => {
   try {
-    import { getAppointmentsForToday, getAppointmentsByDoctor } from '../services/appointmentService.js';
-    import { getPatientsByDoctor } from '../services/patientService.js';
-
     const todayAppointments = await getAppointmentsForToday(req.user.id);
     const allAppointments = await getAppointmentsByDoctor(req.user.id);
     const patients = await getPatientsByDoctor(req.user.id);
@@ -99,6 +98,74 @@ router.get('/dashboard', verifyToken, verifyDoctorRole, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error al obtener dashboard'
+    });
+  }
+});
+
+// Obtener horarios de trabajo del doctor
+router.get('/working-hours', verifyToken, verifyDoctorRole, async (req, res) => {
+  try {
+    const doctorId = req.user.id;
+
+    console.log('GET /working-hours - Doctor ID:', doctorId);
+
+    const result = await query(
+      'SELECT * FROM doctor_availability WHERE doctor_id = $1 ORDER BY day_of_week',
+      [doctorId]
+    );
+
+    console.log('Horarios obtenidos:', result.rows.length);
+
+    res.json({
+      success: true,
+      availability: result.rows
+    });
+  } catch (error) {
+    console.error('Error obteniendo horarios:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener horarios de trabajo'
+    });
+  }
+});
+
+// Actualizar horarios de trabajo del doctor
+router.post('/working-hours', verifyToken, verifyDoctorRole, async (req, res) => {
+  try {
+    const doctorId = req.user.id;
+    const { availability } = req.body;
+
+    console.log('POST /working-hours - Doctor ID:', doctorId);
+    console.log('Horarios a guardar:', availability.length);
+
+    await transaction(async (client) => {
+      // Eliminar horarios existentes
+      await client.query(
+        'DELETE FROM doctor_availability WHERE doctor_id = $1',
+        [doctorId]
+      );
+
+      // Insertar nuevos horarios (todos, activos e inactivos)
+      for (const hours of availability) {
+        await client.query(
+          `INSERT INTO doctor_availability (doctor_id, day_of_week, start_time, end_time, is_available)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [doctorId, hours.day_of_week, hours.start_time, hours.end_time, hours.is_available]
+        );
+      }
+    });
+
+    console.log('✓ Horarios guardados correctamente');
+
+    res.json({
+      success: true,
+      message: 'Horarios actualizados correctamente'
+    });
+  } catch (error) {
+    console.error('Error actualizando horarios:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al actualizar horarios'
     });
   }
 });

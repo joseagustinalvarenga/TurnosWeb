@@ -123,7 +123,15 @@ export const deleteVacation = async (vacationId, doctorId) => {
 // Verificar si el doctor está disponible en una fecha/hora
 export const isAvailableAt = async (doctorId, date, time) => {
   // Obtener el día de la semana (0 = domingo, 6 = sábado)
-  const dayOfWeek = new Date(date).getDay();
+  // Parsear la fecha sin aplicar compensación UTC
+  const [year, month, day] = date.split('-').map(Number);
+  const dateObj = new Date(year, month - 1, day);
+  const dayOfWeek = dateObj.getDay();
+
+  console.log('🔍 Verificando disponibilidad:');
+  console.log('  Fecha:', date);
+  console.log('  Día de semana:', dayOfWeek);
+  console.log('  Hora:', time);
 
   // Verificar vacaciones
   const vacation = await query(
@@ -145,9 +153,14 @@ export const isAvailableAt = async (doctorId, date, time) => {
     [doctorId, dayOfWeek]
   );
 
+  console.log('  Disponibilidades encontradas:', availability.rows.length);
+
   if (availability.rows.length === 0) {
+    console.log('  ❌ No hay disponibilidades');
     return { available: false, reason: 'Doctor no atiende este día' };
   }
+
+  console.log('  ✓ Horarios:', availability.rows[0].start_time, '-', availability.rows[0].end_time);
 
   // Verificar si la hora está dentro de los rangos disponibles
   const slot = availability.rows[0];
@@ -178,7 +191,13 @@ export const isAvailableAt = async (doctorId, date, time) => {
 
 // Obtener próximas disponibilidades para una fecha
 export const getNextAvailableSlots = async (doctorId, date, slotDurationMinutes = 30) => {
-  const dayOfWeek = new Date(date).getDay();
+  // Parsear la fecha sin aplicar compensación UTC
+  const [year, month, day] = date.split('-').map(Number);
+  const dateObj = new Date(year, month - 1, day);
+  const dayOfWeek = dateObj.getDay();
+
+  console.log('📅 Buscando slots para:', date);
+  console.log('📊 Día de la semana:', dayOfWeek, '(0=Domingo, 1=Lunes, etc)');
 
   // Verificar si hay vacaciones
   const vacation = await query(
@@ -198,7 +217,13 @@ export const getNextAvailableSlots = async (doctorId, date, slotDurationMinutes 
     [doctorId, dayOfWeek]
   );
 
+  console.log('Disponibilidades encontradas:', availabilities.rows.length);
+  if (availabilities.rows.length > 0) {
+    console.log('Horarios:', availabilities.rows[0].start_time, '-', availabilities.rows[0].end_time);
+  }
+
   if (availabilities.rows.length === 0) {
+    console.log('⚠️  No hay disponibilidades configuradas para este día');
     return [];
   }
 
@@ -210,7 +235,14 @@ export const getNextAvailableSlots = async (doctorId, date, slotDurationMinutes 
     [doctorId, date]
   );
 
-  const bookedTimes = appointments.rows.map(a => a.appointment_time);
+  // Normalizar horarios reservados (remover segundos si existen)
+  const bookedTimes = appointments.rows.map(a => {
+    const time = a.appointment_time;
+    // Si tiene formato HH:MM:SS, extraer solo HH:MM
+    return typeof time === 'string' ? time.substring(0, 5) : time;
+  });
+
+  console.log('  Horarios reservados:', bookedTimes);
 
   // Generar slots disponibles
   const slots = [];
@@ -227,6 +259,7 @@ export const getNextAvailableSlots = async (doctorId, date, slotDurationMinutes 
     }
   }
 
+  console.log('  Slots disponibles:', slots.length);
   return slots;
 };
 

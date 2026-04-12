@@ -1,106 +1,166 @@
-.patientsPage {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
-}
-
-.loading {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 400px;
-  gap: var(--spacing-lg);
-  color: var(--gray);
-}
-
-.spinner {
-  border: 4px solid var(--border-color);
-  border-top: 4px solid var(--primary-color);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding-bottom: var(--spacing-lg);
-  border-bottom: 2px solid var(--border-color);
+  align-items: flex-start;
+  margin-bottom: 2rem;
 }
 
-.header h1 {
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
   margin: 0;
-  font-size: var(--font-size-2xl);
-  color: var(--dark-gray);
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin: 0.5rem 0 0 0;
 }
 
 .addBtn {
-  background: linear-gradient(135deg, var(--primary-color) 0%, #0052a3 100%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--primary-color);
   color: white;
   border: none;
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-radius: var(--radius-md);
-  font-weight: 600;
+  border-radius: 0.5rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all var(--transition-base);
+  white-space: nowrap;
 }
 
 .addBtn:hover {
+  background: var(--primary-dark);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
 }
 
-.alert {
-  background-color: #fff3cd;
-  border: 1px solid #ffeeba;
-  color: #856404;
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-radius: var(--radius-md);
+.errorBox {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 2rem;
 }
 
-/* Formulario */
-.formContainer {
-  background: white;
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-  box-shadow: var(--shadow-md);
-  margin-bottom: var(--spacing-xl);
+/* Search Box */
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 2rem;
 }
 
-.form h3 {
-  margin: 0 0 var(--spacing-xl) 0;
-  color: var(--dark-gray);
-  font-size: var(--font-size-lg);
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  background: transparent;
+}
+
+.searchInput::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 1rem;
+}
+
+.modalContent {
+  background: var(--bg-surface);
+  border-radius: 0.75rem;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-base);
+}
+
+.closeBtn:hover {
+  color: var(--text-primary);
+}
+
+/* Form */
+.form {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-lg);
+  gap: 0.5rem;
 }
 
 .formGroup label {
-  font-weight: 600;
-  color: var(--dark-gray);
-  font-size: var(--font-size-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 .formGroup input,
 .formGroup select {
-  padding: var(--spacing-md);
+  padding: 0.75rem;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  font-family: var(--font-family);
-  font-size: var(--font-size-base);
+  border-radius: 0.375rem;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  background: var(--bg-surface);
   transition: all var(--transition-base);
 }
 
@@ -108,35 +168,31 @@
 .formGroup select:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .formRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-lg);
+  gap: 1rem;
 }
 
 .formActions {
   display: flex;
-  gap: var(--spacing-lg);
-  margin-top: var(--spacing-xl);
-}
-
-.submitBtn,
-.cancelBtn {
-  flex: 1;
-  padding: var(--spacing-md) var(--spacing-lg);
-  border: none;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-base);
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .submitBtn {
+  flex: 1;
+  padding: 0.875rem;
   background: var(--primary-color);
   color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
 }
 
 .submitBtn:hover {
@@ -145,214 +201,230 @@
 }
 
 .cancelBtn {
-  background: var(--light-gray);
-  color: var(--dark-gray);
+  flex: 1;
+  padding: 0.875rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
 }
 
 .cancelBtn:hover {
   background: var(--border-color);
 }
 
-/* Controles */
-.controls {
-  display: flex;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
-  background: white;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-}
-
-.searchInput {
-  flex: 1;
-  padding: var(--spacing-md);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-base);
-  transition: all var(--transition-base);
-}
-
-.searchInput:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
-}
-
-.refreshBtn {
-  background: var(--primary-light);
-  color: white;
-  border: none;
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  font-size: var(--font-size-lg);
-  transition: all var(--transition-base);
-}
-
-.refreshBtn:hover {
-  background: var(--primary-color);
-  transform: rotate(180deg);
-}
-
-/* Lista de pacientes */
-.listContainer {
-  background: white;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  padding: var(--spacing-lg);
-}
-
-.emptyState {
-  text-align: center;
-  padding: var(--spacing-2xl);
-  color: var(--gray);
-}
-
-.patientsList {
+/* Patients Grid */
+.patientsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: var(--spacing-lg);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .patientCard {
+  background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
+  border-radius: 0.75rem;
+  overflow: hidden;
   transition: all var(--transition-base);
-  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .patientCard:hover {
-  box-shadow: var(--shadow-lg);
-  border-color: var(--primary-color);
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-color);
 }
 
-.patientHeader {
+.cardHeader {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
-  padding-bottom: var(--spacing-lg);
+  align-items: center;
+  padding: 1.25rem;
   border-bottom: 1px solid var(--border-color);
+  background: var(--bg-primary);
 }
 
-.patientName {
+.cardHeader h3 {
   margin: 0;
-  font-size: var(--font-size-lg);
-  color: var(--dark-gray);
+  font-size: 1.1rem;
+  color: var(--text-primary);
   font-weight: 600;
-  flex: 1;
 }
 
-.actions {
+.cardActions {
   display: flex;
-  gap: var(--spacing-md);
+  gap: 0.5rem;
 }
 
-.editBtn,
-.deleteBtn {
+.iconBtn {
   background: none;
   border: none;
-  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
   cursor: pointer;
-  padding: var(--spacing-sm);
-  border-radius: var(--radius-md);
-  transition: all var(--transition-base);
-}
-
-.editBtn:hover {
-  background-color: #e3f2fd;
-  transform: scale(1.2);
-}
-
-.deleteBtn:hover {
-  background-color: #ffebee;
-  transform: scale(1.2);
-}
-
-.patientInfo {
-  margin-bottom: var(--spacing-lg);
-}
-
-.infoItem {
-  margin: var(--spacing-sm) 0;
-  color: var(--gray);
-  font-size: var(--font-size-sm);
+  padding: 0.5rem;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  justify-content: center;
+  transition: color var(--transition-base);
 }
 
-.infoItem a {
+.iconBtn:hover {
+  color: var(--primary-color);
+}
+
+.cardBody {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.cardItem {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.label {
+  font-weight: 500;
+  color: var(--text-secondary);
+  min-width: 80px;
+  font-size: 0.9rem;
+}
+
+.value {
+  color: var(--text-primary);
+  word-break: break-word;
+  font-size: 0.9rem;
+}
+
+.link {
   color: var(--primary-color);
   text-decoration: none;
+  transition: color var(--transition-base);
 }
 
-.infoItem a:hover {
+.link:hover {
   text-decoration: underline;
 }
 
-.patientFooter {
-  color: var(--gray);
-  font-size: 0.75rem;
-  text-align: right;
-}
-
-.summary {
+/* Empty State */
+.emptyState {
+  background: var(--bg-surface);
+  border-radius: 0.75rem;
+  padding: 3rem 2rem;
   text-align: center;
-  color: var(--gray);
-  font-size: var(--font-size-sm);
-  padding: var(--spacing-lg);
+  color: var(--text-secondary);
+  border: 1px dashed var(--border-color);
+  margin-bottom: 2rem;
 }
 
-.summary strong {
-  color: var(--dark-gray);
+/* Footer */
+.footer {
+  text-align: right;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.footer strong {
+  color: var(--text-primary);
   font-weight: 600;
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-  .formRow {
-    grid-template-columns: 1fr;
-  }
-
-  .patientsList {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  }
+/* Loading */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1rem;
+  color: var(--text-secondary);
 }
 
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Checkbox Group */
+.checkboxGroup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+}
+
+/* Insurance Badges */
+.insuranceBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.insuranceBadge {
+  display: inline-block;
+  padding: 0.4rem 0.75rem;
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-  .controls {
-    flex-direction: column;
-  }
-
-  .searchInput {
-    width: 100%;
-  }
-
-  .patientsList {
-    grid-template-columns: 1fr;
-  }
-
-  .formActions {
-    flex-direction: column;
-  }
-
-  .submitBtn,
-  .cancelBtn {
-    width: 100%;
+  .container {
+    padding: 1rem;
   }
 
   .header {
     flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-md);
+    gap: 1rem;
   }
 
-  .addBtn {
-    width: 100%;
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .patientsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .modalContent {
+    max-width: 100%;
   }
 }

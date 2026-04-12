@@ -1,318 +1,319 @@
-.dashboard {
+.container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Page Header */
+.pageHeader {
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xl);
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
 }
 
-.loading {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 400px;
-  gap: var(--spacing-lg);
-  color: var(--gray);
-}
-
-.spinner {
-  border: 4px solid var(--border-color);
-  border-top: 4px solid var(--primary-color);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.alert {
-  background-color: #fff3cd;
-  border: 1px solid #ffeeba;
-  color: #856404;
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-}
-
-.header {
-  margin-bottom: var(--spacing-lg);
-}
-
-.header h1 {
-  font-size: var(--font-size-2xl);
-  color: var(--dark-gray);
-  margin: 0 0 var(--spacing-sm) 0;
-}
-
-.subtitle {
-  color: var(--gray);
-  font-size: var(--font-size-base);
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
   margin: 0;
 }
 
-/* Grid de estadísticas */
+.subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin: 0.5rem 0 0 0;
+}
+
+.connectionStatus {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--bg-surface);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.statusIndicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: pulse 2s infinite;
+}
+
+.statusIndicator.connected {
+  background: #16a34a;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Error Box */
+.errorBox {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+
+/* Stats Grid */
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-2xl);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .statCard {
-  background: white;
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  box-shadow: var(--shadow-md);
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-lg);
-  border-left: 4px solid var(--primary-color);
+  background: var(--bg-surface);
+  border-radius: 0.75rem;
+  padding: 1.75rem;
+  border-left: 4px solid;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: all var(--transition-base);
 }
 
 .statCard:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .statCard.primary {
   border-left-color: var(--primary-color);
 }
 
-.statCard.info {
-  border-left-color: #17a2b8;
-}
-
 .statCard.success {
-  border-left-color: #28a745;
+  border-left-color: var(--success-color);
 }
 
 .statCard.warning {
-  border-left-color: #ffc107;
+  border-left-color: var(--warning-color);
+}
+
+.statCard.info {
+  border-left-color: var(--info-color);
 }
 
 .statCard.danger {
-  border-left-color: #dc3545;
+  border-left-color: var(--danger-color);
 }
 
-.statIcon {
+.statValue {
   font-size: 2.5rem;
-  min-width: 50px;
-  text-align: center;
-}
-
-.statContent {
-  flex: 1;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
 }
 
 .statLabel {
-  margin: 0;
-  font-size: var(--font-size-sm);
-  color: var(--gray);
-  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.statValue {
-  margin: var(--spacing-sm) 0 0 0;
-  font-size: var(--font-size-2xl);
-  color: var(--dark-gray);
-  font-weight: 700;
+.statSubtext {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
 }
 
-.statTrend {
-  display: block;
-  font-size: var(--font-size-sm);
-  color: #28a745;
-  margin-top: var(--spacing-sm);
+/* Appointments Section */
+.appointmentsSection {
+  background: var(--bg-surface);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-/* Secciones */
-.section {
-  background: white;
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-  box-shadow: var(--shadow-md);
-}
-
-.sectionHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-lg);
-  padding-bottom: var(--spacing-lg);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.sectionHeader h2 {
-  margin: 0;
-  font-size: var(--font-size-xl);
-  color: var(--dark-gray);
-}
-
-.seeAll {
-  color: var(--primary-color);
-  text-decoration: none;
+.sectionTitle {
+  font-size: 1.25rem;
   font-weight: 600;
-  transition: color var(--transition-base);
+  color: var(--text-primary);
+  margin: 0 0 1.5rem 0;
 }
 
-.seeAll:hover {
-  color: var(--primary-dark);
+.appointmentsTable {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.emptyState {
-  text-align: center;
-  padding: var(--spacing-2xl);
-  color: var(--gray);
+.appointmentsTable thead {
+  background: var(--bg-primary);
+  border-bottom: 2px solid var(--border-color);
 }
 
-/* Lista de citas */
-.appointmentsList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+.appointmentsTable th {
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.appointmentItem {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-lg);
-  border-radius: var(--radius-md);
-  background: var(--light-gray);
-  transition: all var(--transition-base);
-  border-left: 4px solid transparent;
+.appointmentsTable tbody tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color var(--transition-base);
 }
 
-.appointmentItem:hover {
-  background: #f0f5ff;
-  border-left-color: var(--primary-color);
+.appointmentsTable tbody tr:hover {
+  background-color: var(--bg-primary);
 }
 
-.apptTime {
-  flex-shrink: 0;
+.appointmentsTable td {
+  padding: 1rem;
+  color: var(--text-primary);
 }
 
-.time {
-  display: block;
-  font-size: var(--font-size-lg);
-  font-weight: 700;
+.positionCell {
+  font-weight: 600;
   color: var(--primary-color);
-  background: white;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-md);
-  min-width: 70px;
-  text-align: center;
-}
-
-.apptInfo {
-  flex: 1;
+  font-size: 1.1rem;
+  width: 60px;
 }
 
 .patientName {
-  margin: 0;
+  font-weight: 500;
+}
+
+.time {
   font-weight: 600;
-  color: var(--dark-gray);
-  font-size: var(--font-size-base);
+  color: var(--primary-color);
 }
 
-.patientContact {
-  margin: var(--spacing-sm) 0 0 0;
-  color: var(--gray);
-  font-size: var(--font-size-sm);
-}
-
-.apptStatus {
-  flex-shrink: 0;
-}
-
-.badge {
+.statusBadge {
   display: inline-block;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-sm);
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  white-space: nowrap;
+  letter-spacing: 0.5px;
 }
 
-.badge.scheduled {
-  background: #cfe2ff;
-  color: #084298;
+.statusScheduled {
+  background: #dbeafe;
+  color: #1e40af;
 }
 
-.badge.completed {
-  background: #d1e7dd;
-  color: #0f5132;
+.statusCompleted {
+  background: #dcfce7;
+  color: #166534;
 }
 
-.badge.cancelled {
-  background: #f8d7da;
-  color: #842029;
+.statusCancelled {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
-/* Estadísticas rápidas */
-.quickStats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--spacing-lg);
-}
-
-.quickStatItem {
-  background: white;
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  box-shadow: var(--shadow-md);
+/* Empty State */
+.emptyState {
   text-align: center;
+  padding: 3rem 2rem;
+  color: var(--text-secondary);
 }
 
-.quickStatItem h4 {
-  margin: 0 0 var(--spacing-sm) 0;
-  font-size: var(--font-size-base);
-  color: var(--dark-gray);
+/* Session Info */
+.sessionInfo {
+  background: var(--bg-surface);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  display: flex;
+  gap: 3rem;
+  border: 1px solid var(--border-color);
 }
 
-.quickStatItem p {
-  margin: 0;
-  color: var(--gray);
-  font-size: var(--font-size-sm);
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.infoLabel {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.infoValue {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Loading */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1rem;
+  color: var(--text-secondary);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* Responsive */
 @media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .pageHeader {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
   .statsGrid {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-md);
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .statCard {
+  .appointmentsSection {
+    padding: 1rem;
+    overflow-x: auto;
+  }
+
+  .appointmentsTable {
+    font-size: 0.9rem;
+  }
+
+  .appointmentsTable th,
+  .appointmentsTable td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .sessionInfo {
     flex-direction: column;
-    text-align: center;
+    gap: 1rem;
   }
 
-  .appointmentItem {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .apptStatus {
-    width: 100%;
-    text-align: right;
-  }
-
-  .sectionHeader {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-md);
-  }
-
-  .quickStats {
-    grid-template-columns: 1fr;
+  .title {
+    font-size: 1.5rem;
   }
 }

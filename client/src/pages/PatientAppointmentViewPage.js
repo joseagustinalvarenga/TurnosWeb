@@ -11,12 +11,10 @@ export default function PatientAppointmentViewPage() {
   const [error, setError] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
 
-  // Cargar cita
   useEffect(() => {
     fetchAppointment();
   }, [appointmentCode]);
 
-  // Timer para actualizar tiempo restante
   useEffect(() => {
     if (!appointment) return;
 
@@ -44,16 +42,12 @@ export default function PatientAppointmentViewPage() {
   const fetchAppointment = async () => {
     try {
       setLoading(true);
-
-      // Para esta demo, buscar una cita que coincida con el código
-      // En producción, habría un endpoint específico para esto
       const response = await appointmentAPI.getAppointments();
 
       if (response.success) {
-        // Buscar la cita (en demo usamos el código como parte del ID)
         const appt = response.appointments.find(
           a => a.id.substring(0, 8).toUpperCase() === appointmentCode.substring(0, 8).toUpperCase()
-        ) || response.appointments[0]; // Demo: tomar la primera cita
+        ) || response.appointments[0];
 
         if (appt) {
           setAppointment(appt);
@@ -70,43 +64,14 @@ export default function PatientAppointmentViewPage() {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'scheduled':
-        return 'scheduled';
-      case 'completed':
-        return 'completed';
-      case 'cancelled':
-        return 'cancelled';
-      default:
-        return 'scheduled';
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'scheduled':
-        return 'Turno Confirmado';
-      case 'completed':
-        return 'Completado';
-      case 'cancelled':
-        return 'Cancelado';
-      default:
-        return status;
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'scheduled':
-        return '⏳';
-      case 'completed':
-        return '✅';
-      case 'cancelled':
-        return '❌';
-      default:
-        return '❓';
-    }
+  const getStatusBadge = (status) => {
+    const badges = {
+      scheduled: { label: 'Confirmado', class: styles.statusScheduled },
+      completed: { label: 'Completado', class: styles.statusCompleted },
+      cancelled: { label: 'Cancelado', class: styles.statusCancelled }
+    };
+    const badge = badges[status] || badges.scheduled;
+    return <span className={`${styles.statusBadge} ${badge.class}`}>{badge.label}</span>;
   };
 
   if (loading) {
@@ -124,13 +89,13 @@ export default function PatientAppointmentViewPage() {
     return (
       <div className={styles.container}>
         <div className={styles.errorCard}>
-          <h2>❌ Error</h2>
+          <h2>Error</h2>
           <p>{error || 'No se encontró tu turno'}</p>
           <button
             className={styles.backBtn}
             onClick={() => navigate('/patient')}
           >
-            ← Volver
+            Volver
           </button>
         </div>
       </div>
@@ -151,123 +116,121 @@ export default function PatientAppointmentViewPage() {
       </button>
 
       <div className={styles.card}>
-        {/* Encabezado con estado */}
-        <div className={`${styles.header} ${styles[getStatusColor(appointment.status)]}`}>
-          <span className={styles.statusIcon}>
-            {getStatusIcon(appointment.status)}
-          </span>
+        {/* Estado */}
+        <div className={`${styles.header} ${styles[appointment.status]}`}>
           <h1 className={styles.statusText}>
-            {getStatusText(appointment.status)}
+            {appointment.status === 'scheduled' && 'Tu turno está confirmado'}
+            {appointment.status === 'completed' && 'Turno completado'}
+            {appointment.status === 'cancelled' && 'Turno cancelado'}
           </h1>
           {isToday && appointment.status === 'scheduled' && (
-            <p className={styles.badge}>🎯 Hoy</p>
+            <div className={styles.todayBadge}>Hoy</div>
           )}
         </div>
 
-        {/* Información principal */}
-        <div className={styles.mainInfo}>
-          <div className={styles.infoSection}>
-            <h3>📅 Fecha y Hora</h3>
-            <p className={styles.largeText}>
+        {/* Información Principal */}
+        <div className={styles.mainSection}>
+          <div className={styles.dateTimeBox}>
+            <div className={styles.label}>Fecha y Hora</div>
+            <div className={styles.dateDisplay}>
               {appointmentDate.toLocaleDateString('es-ES', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
               })}
-            </p>
-            <p className={styles.timeText}>
+            </div>
+            <div className={styles.timeDisplay}>
               {appointment.appointment_time}
-            </p>
+            </div>
           </div>
 
-          {/* Tiempo restante */}
           {appointment.status === 'scheduled' && timeLeft && (
-            <div className={styles.infoSection}>
-              <h3>⏱️ Falta Para Tu Turno</h3>
+            <div className={styles.countdownBox}>
+              <div className={styles.label}>Falta para tu turno</div>
               <div className={styles.countdown}>
                 {timeLeft.hours > 0 && (
                   <div className={styles.countdownItem}>
                     <span className={styles.number}>{timeLeft.hours}</span>
-                    <span className={styles.label}>h</span>
+                    <span className={styles.unit}>h</span>
                   </div>
                 )}
                 <div className={styles.countdownItem}>
                   <span className={styles.number}>{timeLeft.minutes}</span>
-                  <span className={styles.label}>m</span>
+                  <span className={styles.unit}>m</span>
                 </div>
                 <div className={styles.countdownItem}>
                   <span className={styles.number}>{timeLeft.seconds}</span>
-                  <span className={styles.label}>s</span>
+                  <span className={styles.unit}>s</span>
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Detalles del doctor */}
-        <div className={styles.doctorSection}>
-          <h3>👨‍⚕️ Tu Doctor</h3>
+        {/* Información del Doctor */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Tu Doctor</h3>
           <div className={styles.doctorInfo}>
-            <p className={styles.doctorName}>{appointment.doctor_name}</p>
+            <h4 className={styles.doctorName}>{appointment.doctor_name}</h4>
             {appointment.specialization && (
-              <p className={styles.specialization}>
-                {appointment.specialization}
-              </p>
+              <p className={styles.specialization}>{appointment.specialization}</p>
             )}
           </div>
         </div>
 
-        {/* Información del paciente */}
-        <div className={styles.patientSection}>
-          <h3>👤 Tu Información</h3>
+        {/* Información del Paciente */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Tu Información</h3>
           <div className={styles.patientInfo}>
-            <p><strong>Nombre:</strong> {appointment.patient_name}</p>
+            <div className={styles.infoRow}>
+              <span className={styles.label}>Nombre:</span>
+              <span className={styles.value}>{appointment.patient_name}</span>
+            </div>
             {appointment.patient_phone && (
-              <p>
-                <strong>Teléfono:</strong>{' '}
-                <a href={`tel:${appointment.patient_phone}`}>
+              <div className={styles.infoRow}>
+                <span className={styles.label}>Teléfono:</span>
+                <a href={`tel:${appointment.patient_phone}`} className={styles.phoneLink}>
                   {appointment.patient_phone}
                 </a>
-              </p>
+              </div>
             )}
             {appointment.reason_for_visit && (
-              <p><strong>Motivo:</strong> {appointment.reason_for_visit}</p>
+              <div className={styles.infoRow}>
+                <span className={styles.label}>Motivo:</span>
+                <span className={styles.value}>{appointment.reason_for_visit}</span>
+              </div>
             )}
           </div>
         </div>
 
         {/* Instrucciones */}
         {appointment.status === 'scheduled' && (
-          <div className={styles.instructionsBox}>
-            <h3>📋 Importante</h3>
-            <ul>
+          <div className={styles.instructions}>
+            <h3 className={styles.sectionTitle}>Información Importante</h3>
+            <ul className={styles.instructionsList}>
               <li>Presenta tu identificación al llegar</li>
               <li>Procura llegar 5-10 minutos antes</li>
-              <li>Mantén este código contigo</li>
+              <li>Ten este código contigo</li>
               {isToday && (
-                <li className={styles.highlight}>
-                  🔔 Tu cita es HOY. ¡No olvides!
-                </li>
+                <li className={styles.highlight}>Tu cita es HOY. No olvides</li>
               )}
             </ul>
           </div>
         )}
 
-        {/* Código de turno */}
+        {/* Código de Turno */}
         <div className={styles.codeSection}>
-          <p className={styles.codeLabel}>Código de Turno</p>
-          <div className={styles.code}>
-            {appointmentCode}
-          </div>
+          <div className={styles.label}>Código de Turno</div>
+          <div className={styles.code}>{appointmentCode}</div>
           <button
             className={styles.copyBtn}
             onClick={() => {
               navigator.clipboard.writeText(appointmentCode);
-              alert('Código copiado al portapapeles');
+              alert('Código copiado');
             }}
           >
-            📋 Copiar
+            Copiar Código
           </button>
         </div>
 
@@ -278,20 +241,22 @@ export default function PatientAppointmentViewPage() {
             onClick={fetchAppointment}
             title="Actualizar"
           >
-            🔄 Actualizar
+            Actualizar
           </button>
-          <a
-            href={`tel:${appointment.patient_phone || '+56912345678'}`}
-            className={styles.callBtn}
-          >
-            📞 Llamar
-          </a>
+          {appointment.patient_phone && (
+            <a
+              href={`tel:${appointment.patient_phone}`}
+              className={styles.callBtn}
+            >
+              Llamar a la Clínica
+            </a>
+          )}
         </div>
 
         {/* Footer */}
         <div className={styles.footer}>
-          <p>¿Dudas? Llama a la clínica</p>
-          <p className={styles.phone}>📞 +56 9 1234 5678</p>
+          <p>¿Dudas o necesitas cambiar tu turno?</p>
+          <p className={styles.footerPhone}>+56 9 1234 5678</p>
         </div>
       </div>
     </div>

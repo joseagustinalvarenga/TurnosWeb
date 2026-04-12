@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import Icon from '../components/Icon';
 import styles from './RegisterPage.module.css';
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -15,6 +18,7 @@ export default function RegisterPage() {
     clinic_name: ''
   });
   const [localError, setLocalError] = useState('');
+  const [registrationPending, setRegistrationPending] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,11 +58,45 @@ export default function RegisterPage() {
     });
 
     if (result.success) {
-      navigate('/dashboard');
+      if (result.pending) {
+        // Mostrar mensaje de cuenta pendiente
+        setRegistrationPending(true);
+        setLocalError('');
+      } else {
+        // Caso normal - ir al dashboard
+        navigate('/dashboard');
+      }
     } else {
       setLocalError(result.error);
     }
   };
+
+  if (registrationPending) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.card}>
+          <div className={styles.header}>
+            <h1 className={styles.title}>¡Cuenta Creada!</h1>
+            <p className={styles.subtitle}>Pendiente de aprobación</p>
+          </div>
+
+          <div className={styles.successMessage}>
+            <div className={styles.successIcon}>✓</div>
+            <p>
+              Tu cuenta ha sido creada correctamente. El administrador revisará tu solicitud y recibirás acceso una vez aprobada.
+            </p>
+            <p>
+              Este proceso generalmente toma poco tiempo. Revisa tu email para más información.
+            </p>
+          </div>
+
+          <Link to="/login" className={styles.backLink}>
+            Volver a Iniciar Sesión
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -73,6 +111,22 @@ export default function RegisterPage() {
             {localError || error}
           </div>
         )}
+
+        <button
+          type="button"
+          onClick={() => {
+            window.location.href = `${API_BASE_URL}/api/auth/google`;
+          }}
+          className={styles.googleBtn}
+          disabled={loading}
+        >
+          <Icon name="mail" size={18} color="currentColor" />
+          Crear Cuenta con Google
+        </button>
+
+        <div className={styles.divider}>
+          <span>o</span>
+        </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>

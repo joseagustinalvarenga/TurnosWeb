@@ -1,183 +1,159 @@
 .sidebar {
   width: 260px;
   height: 100vh;
-  background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
-  color: white;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
   display: flex;
   flex-direction: column;
   padding: 0;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
   transition: width var(--transition-base);
   position: fixed;
   left: 0;
   top: 0;
   z-index: 1000;
   overflow-y: auto;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sidebar.collapsed {
   width: 80px;
 }
 
+/* Header */
 .header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  padding: 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 0.5rem;
+}
+
+.logo {
+  display: flex;
   align-items: center;
-  padding: var(--spacing-lg);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  gap: var(--spacing-md);
-}
-
-.title {
-  font-size: var(--font-size-lg);
-  font-weight: 700;
-  margin: 0;
-  white-space: nowrap;
-}
-
-.toggleBtn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  font-size: var(--font-size-lg);
-  transition: all var(--transition-base);
-  flex-shrink: 0;
-}
-
-.toggleBtn:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.nav {
+  gap: 0.75rem;
   flex: 1;
-  padding: var(--spacing-lg) 0;
-  overflow-y: auto;
+  min-width: 0;
 }
 
-.menu {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.menuItem {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md) var(--spacing-lg);
-  color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
-  transition: all var(--transition-base);
-  position: relative;
-  border-left: 3px solid transparent;
-  font-weight: 500;
-}
-
-.menuItem:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-}
-
-.menuItem.active {
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-  border-left-color: white;
-}
-
-.icon {
+.logoText {
   font-size: 1.25rem;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-}
-
-.label {
-  flex: 1;
+  font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.badge {
-  background: #ff6b6b;
-  color: white;
-  border-radius: var(--radius-full);
-  padding: 2px 6px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  margin-left: auto;
+.collapseBtn {
+  background: none;
+  border: none;
+  color: var(--sidebar-text);
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  transition: transform var(--transition-base);
   flex-shrink: 0;
 }
 
-.footer {
-  padding: var(--spacing-lg);
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  display: flex;
-  gap: var(--spacing-md);
+.collapseBtn:hover {
+  transform: scale(1.1);
 }
 
-.help {
+/* Navigation */
+.nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 0.5rem;
+  overflow-y: auto;
+}
+
+.navItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-md);
-  cursor: pointer;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  border-radius: 0.5rem;
   transition: all var(--transition-base);
-  width: 100%;
-  justify-content: center;
+  font-weight: 500;
+  font-size: 0.95rem;
 }
 
-.help:hover {
-  background: rgba(255, 255, 255, 0.2);
+.navItem:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--sidebar-text);
 }
 
-/* Sidebar colapsado */
-.collapsed .header {
-  justify-content: center;
-  padding: var(--spacing-md);
+.navItem.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--sidebar-text);
+  border-left: 3px solid #60a5fa;
+  padding-left: calc(1rem - 3px);
 }
 
-.collapsed .title {
-  display: none;
+.label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.collapsed .toggleBtn {
-  width: 40px;
-  height: 40px;
+/* Footer */
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: auto;
 }
 
-.collapsed .menuItem {
-  justify-content: center;
-  padding: var(--spacing-md);
-  border-left: 3px solid transparent;
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
 }
 
-.collapsed .label {
-  display: none;
+.userName {
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.collapsed .badge {
-  position: absolute;
-  right: -8px;
-  top: -8px;
-  padding: 4px 8px;
+.userEmail {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.collapsed .icon {
-  font-size: 1.5rem;
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--sidebar-text);
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all var(--transition-base);
+  cursor: pointer;
 }
 
-.collapsed .help {
-  justify-content: center;
+.logoutBtn:hover {
+  background: rgba(220, 38, 38, 0.2);
+  color: #fca5a5;
 }
 
 /* Scrollbar styling */
@@ -186,45 +162,25 @@
 }
 
 .sidebar::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 3px;
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.3);
 }
 
+/* Responsive */
 @media (max-width: 768px) {
   .sidebar {
-    width: 70px;
+    width: 260px;
   }
 
   .sidebar.collapsed {
-    width: 70px;
-  }
-
-  .toggleBtn {
-    display: none;
-  }
-
-  .title {
-    display: none;
-  }
-
-  .label {
-    display: none;
-  }
-
-  .menuItem {
-    justify-content: center;
-    padding: var(--spacing-md);
-  }
-
-  .icon {
-    font-size: 1.5rem;
+    width: 60px;
   }
 }

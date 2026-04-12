@@ -14,6 +14,9 @@ import appointmentRoutes from './routes/appointments.js';
 import patientRoutes from './routes/patients.js';
 import doctorRoutes from './routes/doctor.js';
 import availabilityRoutes from './routes/availability.js';
+import googleCalendarRoutes from './routes/googleCalendar.js';
+import insuranceRoutes from './routes/insurance.js';
+import adminRoutes from './routes/admin.js';
 
 // Imports de middleware
 import { errorHandler } from './middleware/errorHandler.js';
@@ -54,6 +57,9 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/doctor', doctorRoutes);
 app.use('/api/availability', availabilityRoutes);
+app.use('/api/google', googleCalendarRoutes);
+app.use('/api/insurance', insuranceRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Configurar WebSocket
 const wss = new WebSocketServer({ server: httpServer });

@@ -42,8 +42,10 @@ export const generateToken = (user) => {
     {
       id: user.id,
       email: user.email,
-      role: user.role,
-      name: user.name
+      role: 'doctor', // Los que hacen login son siempre doctores
+      name: user.name,
+      status: user.status || 'pending',
+      subscription_status: user.subscription_status || 'pending'
     },
     JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }

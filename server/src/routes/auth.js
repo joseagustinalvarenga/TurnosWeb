@@ -1,7 +1,9 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
+import { v4 as uuidv4 } from 'uuid';
 import { query } from '../db/config.js';
 import { generateToken, verifyToken } from '../middleware/auth.js';
+import * as googleAuthService from '../services/googleAuthService.js';
 
 const router = express.Router();
 
@@ -34,28 +36,21 @@ router.post('/register', async (req, res) => {
     // Hashear contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Crear doctor
+    // Crear doctor con status='pending' (requiere aprobación del admin)
     const result = await query(
-      `INSERT INTO doctors (email, password_hash, name, specialization, clinic_name)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, email, name, specialization, clinic_name`,
+      `INSERT INTO doctors (email, password_hash, name, specialization, clinic_name, status, subscription_status)
+       VALUES ($1, $2, $3, $4, $5, 'pending', 'pending')
+       RETURNING id, email, name, specialization, clinic_name, status`,
       [email, hashedPassword, name, specialization, clinic_name]
     );
 
     const doctor = result.rows[0];
-    const token = generateToken(doctor);
 
+    // No generar token - el doctor debe esperar aprobación del admin
     res.status(201).json({
       success: true,
-      message: 'Doctor registrado exitosamente',
-      token,
-      doctor: {
-        id: doctor.id,
-        email: doctor.email,
-        name: doctor.name,
-        specialization: doctor.specialization,
-        clinic_name: doctor.clinic_name
-      }
+      pending: true,
+      message: 'Tu cuenta fue creada. El administrador revisará tu solicitud y recibirás acceso una vez aprobada.'
     });
   } catch (error) {
     console.error('Error en registro:', error);
@@ -104,8 +99,55 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    // Verificar estado de aprobación
+    if (doctor.status === 'pending') {
+      return res.status(403).json({
+        success: false,
+        pending: true,
+        message: 'Tu cuenta está pendiente de aprobación por el administrador'
+      });
+    }
+
+    if (doctor.status === 'rejected') {
+      return res.status(403).json({
+        success: false,
+        rejected: true,
+        message: 'Tu solicitud de cuenta fue rechazada'
+      });
+    }
+
+    if (doctor.status === 'suspended') {
+      return res.status(403).json({
+        success: false,
+        suspended: true,
+        message: 'Tu cuenta ha sido suspendida'
+      });
+    }
+
+    // Verificar suscripción
+    const now = new Date();
+    let subscriptionStatus = doctor.subscription_status;
+
+    // Actualizar estado de suscripción basado en fechas
+    if (subscriptionStatus === 'trial' && doctor.trial_ends_at && new Date(doctor.trial_ends_at) < now) {
+      subscriptionStatus = 'expired';
+    } else if (subscriptionStatus === 'active' && doctor.subscription_expires_at && new Date(doctor.subscription_expires_at) < now) {
+      subscriptionStatus = 'expired';
+    }
+
+    if (subscriptionStatus === 'expired') {
+      return res.status(403).json({
+        success: false,
+        subscriptionExpired: true,
+        message: 'Tu suscripción ha expirado. Contacta al administrador para renovarla'
+      });
+    }
+
     // Generar token
-    const token = generateToken(doctor);
+    const token = generateToken({
+      ...doctor,
+      subscription_status: subscriptionStatus
+    });
 
     res.json({
       success: true,
@@ -116,7 +158,9 @@ router.post('/login', async (req, res) => {
         email: doctor.email,
         name: doctor.name,
         specialization: doctor.specialization,
-        clinic_name: doctor.clinic_name
+        clinic_name: doctor.clinic_name,
+        status: doctor.status,
+        subscription_status: subscriptionStatus
       }
     });
   } catch (error) {
@@ -162,6 +206,114 @@ router.post('/logout', verifyToken, (req, res) => {
     success: true,
     message: 'Logout exitoso'
   });
+});
+
+// ============ GOOGLE OAUTH ============
+
+// Iniciar flujo de autenticación con Google
+router.get('/google', (req, res) => {
+  try {
+    const authUrl = googleAuthService.getAuthUrl();
+    res.redirect(authUrl);
+  } catch (error) {
+    console.error('Error iniciando Google Auth:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error iniciando sesión con Google'
+    });
+  }
+});
+
+// Callback de Google OAuth
+router.get('/google/callback', async (req, res) => {
+  try {
+    const { code, state, error } = req.query;
+
+    if (error) {
+      console.log('❌ Error de Google:', error);
+      return res.redirect(`http://localhost:3000/login?error=${encodeURIComponent(error)}`);
+    }
+
+    if (!code) {
+      return res.redirect('http://localhost:3000/login?error=no_code');
+    }
+
+    console.log('\n🔵 === GOOGLE AUTH CALLBACK ===');
+    console.log('Code recibido:', code.substring(0, 20) + '...');
+
+    // Obtener información del usuario de Google
+    const userInfo = await googleAuthService.getUserInfo(code);
+    console.log('👤 Usuario Google:', userInfo.email);
+
+    // Buscar doctor existente por google_id o email
+    console.log('🔍 Buscando doctor existente...');
+    const result = await query(
+      `SELECT * FROM doctors WHERE google_id = $1 OR email = $2`,
+      [userInfo.id, userInfo.email]
+    );
+
+    let doctor;
+
+    if (result.rows.length > 0) {
+      doctor = result.rows[0];
+      console.log('✓ Doctor encontrado');
+
+      // Si existe por email pero sin google_id, vinculamos
+      if (!doctor.google_id) {
+        console.log('🔗 Vinculando google_id a cuenta existente...');
+        const updateResult = await query(
+          `UPDATE doctors SET google_id = $1, updated_at = CURRENT_TIMESTAMP
+           WHERE id = $2
+           RETURNING *`,
+          [userInfo.id, doctor.id]
+        );
+        doctor = updateResult.rows[0];
+      }
+    } else {
+      // Crear nuevo doctor con status='pending'
+      console.log('➕ Creando nuevo doctor con Google...');
+      const newDoctorId = uuidv4();
+      const insertResult = await query(
+        `INSERT INTO doctors (id, google_id, email, name, status, subscription_status)
+         VALUES ($1, $2, $3, $4, 'pending', 'pending')
+         RETURNING id, email, name, specialization, clinic_name, google_id, status, subscription_status`,
+        [newDoctorId, userInfo.id, userInfo.email, userInfo.name]
+      );
+      doctor = insertResult.rows[0];
+      console.log('✓ Doctor creado (pendiente de aprobación)');
+    }
+
+    // Verificar estado del doctor
+    if (doctor.status === 'pending') {
+      console.log('⏳ Doctor pendiente de aprobación, redirigiendo a página de estado...');
+      const redirectUrl = `http://localhost:3000/account-pending`;
+      console.log('🔄 Redirigiendo a:', redirectUrl);
+      console.log('✓ Flujo completado\n');
+      return res.redirect(redirectUrl);
+    }
+
+    if (doctor.status === 'rejected' || doctor.status === 'suspended') {
+      console.log('❌ Doctor rechazado/suspendido, redirigiendo a login...');
+      const redirectUrl = `http://localhost:3000/login?error=${encodeURIComponent('Tu cuenta no tiene acceso')}`;
+      console.log('🔄 Redirigiendo a:', redirectUrl.split('?')[0]);
+      console.log('✓ Flujo completado\n');
+      return res.redirect(redirectUrl);
+    }
+
+    // Generar JWT
+    const token = generateToken(doctor);
+    console.log('✓ JWT generado');
+
+    // Redirigir al cliente con el token
+    const redirectUrl = `http://localhost:3000/auth/callback?token=${encodeURIComponent(token)}`;
+    console.log('🔄 Redirigiendo a:', redirectUrl.split('?')[0]);
+    console.log('✓ Flujo completado\n');
+
+    res.redirect(redirectUrl);
+  } catch (error) {
+    console.error('❌ Error en Google callback:', error);
+    res.redirect(`http://localhost:3000/login?error=${encodeURIComponent(error.message)}`);
+  }
 });
 
 export default router;

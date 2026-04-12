@@ -4,8 +4,14 @@ import * as availabilityService from '../services/availabilityService.js';
 // Crear una nueva cita
 export const createAppointment = async (req, res) => {
   try {
-    const { patientId, appointment_date, appointment_time, end_time, reason_for_visit } = req.body;
+    console.log('\n🔵 === POST /api/appointments ===');
+    console.log('Body:', req.body);
+
+    const { patientId, appointment_date, appointment_time, end_time, reason_for_visit, insurance_company_id } = req.body;
     const doctorId = req.user.id;
+
+    console.log('Doctor ID:', doctorId);
+    console.log('Patient ID:', patientId);
 
     // Validaciones
     if (!patientId || !appointment_date || !appointment_time) {
@@ -15,7 +21,10 @@ export const createAppointment = async (req, res) => {
       });
     }
 
+    console.log('✓ Validaciones pasadas');
+
     // Verificar disponibilidad
+    console.log('Verificando disponibilidad...');
     const availability = await availabilityService.isAvailableAt(doctorId, appointment_date, appointment_time);
 
     if (!availability.available) {
@@ -25,16 +34,24 @@ export const createAppointment = async (req, res) => {
       });
     }
 
+    console.log('✓ Disponibilidad verificada');
+
     // Crear cita
+    console.log('Llamando a appointmentService.createAppointment...');
     const appointment = await appointmentService.createAppointment(doctorId, patientId, {
       appointment_date,
       appointment_time,
       end_time,
-      reason_for_visit
+      reason_for_visit,
+      insurance_company_id
     });
+
+    console.log('✓ Cita creada');
 
     // Recalcular cola
     await appointmentService.recalculateQueueForDate(doctorId, appointment_date);
+
+    console.log('✓ Cola recalculada\n');
 
     res.status(201).json({
       success: true,
@@ -42,7 +59,8 @@ export const createAppointment = async (req, res) => {
       appointment
     });
   } catch (error) {
-    console.error('Error creando cita:', error);
+    console.error('\n❌ Error creando cita:', error.message);
+    console.error('Stack:', error.stack, '\n');
     res.status(500).json({
       success: false,
       message: error.message || 'Error al crear la cita'

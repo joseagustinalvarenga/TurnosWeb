@@ -85,6 +85,16 @@ export const doctorAPI = {
   getDashboard: async () => {
     const response = await apiClient.get('/api/doctor/dashboard');
     return response.data;
+  },
+
+  getWorkingHours: async () => {
+    const response = await apiClient.get('/api/doctor/working-hours');
+    return response.data;
+  },
+
+  updateWorkingHours: async (workingHours) => {
+    const response = await apiClient.post('/api/doctor/working-hours', { availability: workingHours });
+    return response.data;
   }
 };
 
@@ -102,6 +112,17 @@ export const appointmentAPI = {
 
   updateAppointment: async (appointmentId, data) => {
     const response = await apiClient.patch(`/api/appointments/${appointmentId}`, data);
+    return response.data;
+  },
+
+  getAvailableSlots: async (date) => {
+    const response = await apiClient.get(`/api/appointments/available-slots?date=${date}`);
+    return response.data;
+  },
+
+  getByToken: async (token) => {
+    // Esta llamada no requiere autenticación
+    const response = await axios.get(`${API_BASE_URL}/api/appointments/public/${token}`);
     return response.data;
   }
 };
@@ -125,6 +146,63 @@ export const patientAPI = {
 
   updatePatient: async (patientId, data) => {
     const response = await apiClient.patch(`/api/patients/${patientId}`, data);
+    return response.data;
+  },
+
+  deletePatient: async (patientId) => {
+    const response = await apiClient.delete(`/api/patients/${patientId}`);
+    return response.data;
+  }
+};
+
+// Google Calendar Integration
+export const googleAPI = {
+  getStatus: async () => {
+    const response = await apiClient.get('/api/google/status');
+    return response.data;
+  },
+
+  connect: () => {
+    window.location.href = `${API_BASE_URL}/api/google/auth`;
+  },
+
+  disconnect: async () => {
+    const response = await apiClient.post('/api/google/disconnect');
+    return response.data;
+  }
+};
+
+// Servicios de Obras Sociales
+export const insuranceAPI = {
+  getInsurances: async () => {
+    const response = await apiClient.get('/api/insurance');
+    return response.data;
+  },
+
+  createInsurance: async (data) => {
+    const response = await apiClient.post('/api/insurance', data);
+    return response.data;
+  },
+
+  updateInsurance: async (id, data) => {
+    const response = await apiClient.patch(`/api/insurance/${id}`, data);
+    return response.data;
+  },
+
+  deleteInsurance: async (id) => {
+    const response = await apiClient.delete(`/api/insurance/${id}`);
+    return response.data;
+  },
+
+  getPatientInsurances: async (patientId) => {
+    const response = await apiClient.get(`/api/insurance/patient/${patientId}`);
+    return response.data;
+  },
+
+  setPatientInsurances: async (patientId, insuranceIds) => {
+    const response = await apiClient.put(`/api/insurance/patient/${patientId}`, {
+      insuranceIds
+    });
     return response.data;
   }
 };
