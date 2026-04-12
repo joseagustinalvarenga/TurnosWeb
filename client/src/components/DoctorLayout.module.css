@@ -47,7 +47,11 @@
 }
 
 .userMenu {
-  display: none;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding-left: var(--spacing-lg);
+  border-left: 1px solid var(--border-color);
 }
 
 .userInfo {

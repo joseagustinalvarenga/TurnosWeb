@@ -32,14 +32,12 @@ export default function DoctorLayout({ children }) {
               <WebSocketStatus />
               <TrialCounter />
 
-              <button
-                className={styles.logoutBtn}
-                onClick={handleLogout}
-                disabled={isLoggingOut}
-                title="Cerrar sesión"
-              >
-                {isLoggingOut ? 'Saliendo...' : 'Salir'}
-              </button>
+              <div className={styles.userMenu}>
+                <div className={styles.userInfo}>
+                  <span className={styles.userName}>{user?.name}</span>
+                  <span className={styles.userRole}>{user?.specialization || 'Doctor'}</span>
+                </div>
+              </div>
             </div>
           </div>
         </header>
