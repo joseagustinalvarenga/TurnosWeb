@@ -18,6 +18,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--spacing-lg);
   padding: var(--spacing-md) var(--spacing-xl);
   max-width: 1400px;
   margin: 0 auto;
@@ -28,6 +29,13 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
+  flex: 1;
+}
+
+.wsStatus {
+  display: flex;
+  align-items: center;
+  min-width: fit-content;
 }
 
 .logo {
@@ -157,6 +165,7 @@
   padding: var(--spacing-xl);
   box-shadow: var(--shadow-md);
   border-left: 4px solid var(--primary-color);
+  grid-column: auto;
 }
 
 .infoBox h3 {

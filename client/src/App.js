@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { WebSocketProvider } from './context/WebSocketContext';
 import { useAuth } from './hooks/useAuth';
 
 // Páginas
@@ -43,7 +44,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <WebSocketProvider>
+          <AppContent />
+        </WebSocketProvider>
       </AuthProvider>
     </Router>
   );
