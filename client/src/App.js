@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { AdminAuthProvider } from './context/AdminAuthContext';
 import { WebSocketProvider } from './context/WebSocketContext';
 import { useAuth } from './hooks/useAuth';
 
-// Páginas
+// Páginas - Doctor
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AuthCallbackPage from './pages/AuthCallbackPage';
@@ -21,8 +22,14 @@ import NotFoundPage from './pages/NotFoundPage';
 import AccountPendingPage from './pages/AccountPendingPage';
 import SubscriptionExpiredPage from './pages/SubscriptionExpiredPage';
 
+// Páginas - Admin
+import AdminLoginPage from './pages/AdminLoginPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import AdminDoctorsPage from './pages/AdminDoctorsPage';
+
 // Componentes
 import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 import Loading from './components/Loading';
 
 function AppContent() {
@@ -45,6 +52,25 @@ function AppContent() {
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route path="/account-pending" element={<AccountPendingPage />} />
       <Route path="/subscription-expired" element={<SubscriptionExpiredPage />} />
+
+      {/* Rutas del Admin */}
+      <Route path="/admin/login" element={<AdminLoginPage />} />
+      <Route
+        path="/admin/dashboard"
+        element={
+          <ProtectedAdminRoute>
+            <AdminDashboardPage />
+          </ProtectedAdminRoute>
+        }
+      />
+      <Route
+        path="/admin/doctors"
+        element={
+          <ProtectedAdminRoute>
+            <AdminDoctorsPage />
+          </ProtectedAdminRoute>
+        }
+      />
 
       {/* Rutas protegidas del doctor */}
       {isAuthenticated && (
@@ -70,11 +96,13 @@ function AppContent() {
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <WebSocketProvider>
-          <AppContent />
-        </WebSocketProvider>
-      </AuthProvider>
+      <AdminAuthProvider>
+        <AuthProvider>
+          <WebSocketProvider>
+            <AppContent />
+          </WebSocketProvider>
+        </AuthProvider>
+      </AdminAuthProvider>
     </Router>
   );
 }
