@@ -21,6 +21,7 @@ import ConfirmAppointmentPage from './pages/ConfirmAppointmentPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AccountPendingPage from './pages/AccountPendingPage';
 import SubscriptionExpiredPage from './pages/SubscriptionExpiredPage';
+import SuspendedPage from './pages/SuspendedPage';
 
 // Páginas - Admin
 import AdminLoginPage from './pages/AdminLoginPage';
@@ -52,6 +53,7 @@ function AppContent() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route path="/account-pending" element={<AccountPendingPage />} />
+      <Route path="/account-suspended" element={<SuspendedPage />} />
       <Route path="/subscription-expired" element={<SubscriptionExpiredPage />} />
 
       {/* Rutas del Admin */}

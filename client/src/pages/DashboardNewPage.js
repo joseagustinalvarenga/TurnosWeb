@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DoctorLayout from '../components/DoctorLayout';
+import TrialCounter from '../components/TrialCounter';
 import { useAuth } from '../hooks/useAuth';
 import { useWebSocketContext } from '../hooks/useWebSocketContext';
 import { doctorAPI, appointmentAPI } from '../services/api';
@@ -105,9 +106,12 @@ export default function DashboardNewPage() {
             <h1 className={styles.title}>Dashboard</h1>
             <p className={styles.subtitle}>Bienvenido, Dr. {user?.name}</p>
           </div>
-          <div className={styles.connectionStatus}>
-            <div className={`${styles.statusIndicator} ${isConnected ? styles.connected : ''}`}></div>
-            <span>{isConnected ? 'Conectado' : 'Desconectado'}</span>
+          <div className={styles.headerRight}>
+            <div className={styles.connectionStatus}>
+              <div className={`${styles.statusIndicator} ${isConnected ? styles.connected : ''}`}></div>
+              <span>{isConnected ? 'Conectado' : 'Desconectado'}</span>
+            </div>
+            <TrialCounter />
           </div>
         </div>
 

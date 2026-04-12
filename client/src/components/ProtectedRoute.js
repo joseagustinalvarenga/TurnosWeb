@@ -15,6 +15,11 @@ export default function ProtectedRoute({ children }) {
     return <Navigate to="/account-pending" replace />;
   }
 
+  // Si la cuenta está suspendida
+  if (user && user.status === 'suspended') {
+    return <Navigate to="/account-suspended" replace />;
+  }
+
   // Si la suscripción está expirada
   if (user && isSubscriptionExpired) {
     return <Navigate to="/subscription-expired" replace />;
