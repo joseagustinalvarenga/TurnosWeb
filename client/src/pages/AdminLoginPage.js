@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAdminAuth } from '../hooks/useAdminAuth';
 import Icon from '../components/Icon';
 import styles from './AdminLoginPage.module.css';
@@ -78,6 +78,10 @@ export default function AdminLoginPage() {
             </div>
           </div>
         </div>
+
+        <Link to="/login" className={styles.doctorLinkLeft}>
+          👨‍⚕️ Entrar como Doctor
+        </Link>
       </div>
 
       <div className={styles.rightSide}>
