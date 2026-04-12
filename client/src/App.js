@@ -10,6 +10,8 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardNewPage from './pages/DashboardNewPage';
 import AppointmentsPage from './pages/AppointmentsPage';
 import PatientsPage from './pages/PatientsPage';
+import PatientPortalHomePage from './pages/PatientPortalHomePage';
+import PatientAppointmentViewPage from './pages/PatientAppointmentViewPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Componentes
@@ -25,10 +27,15 @@ function AppContent() {
 
   return (
     <Routes>
+      {/* Portal del Paciente (públicas) */}
+      <Route path="/patient" element={<PatientPortalHomePage />} />
+      <Route path="/patient/appointment/:appointmentCode" element={<PatientAppointmentViewPage />} />
+
       {!isAuthenticated ? (
         <>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </>
       ) : (
@@ -39,7 +46,7 @@ function AppContent() {
           <Route path="/availability" element={<DashboardNewPage />} />
           <Route path="/reports" element={<DashboardNewPage />} />
           <Route path="/settings" element={<DashboardNewPage />} />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/doctor/*" element={<DashboardNewPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </>
       )}
