@@ -7,7 +7,7 @@ import { useAuth } from './hooks/useAuth';
 // Páginas
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
+import DashboardNewPage from './pages/DashboardNewPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Componentes
@@ -31,7 +31,12 @@ function AppContent() {
         </>
       ) : (
         <>
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/dashboard" element={<DashboardNewPage />} />
+          <Route path="/appointments" element={<DashboardNewPage />} />
+          <Route path="/patients" element={<DashboardNewPage />} />
+          <Route path="/availability" element={<DashboardNewPage />} />
+          <Route path="/reports" element={<DashboardNewPage />} />
+          <Route path="/settings" element={<DashboardNewPage />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<NotFoundPage />} />
         </>
