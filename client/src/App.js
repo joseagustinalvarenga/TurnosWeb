@@ -26,6 +26,7 @@ import SubscriptionExpiredPage from './pages/SubscriptionExpiredPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminDoctorsPage from './pages/AdminDoctorsPage';
+import AdminSubscriptionsPage from './pages/AdminSubscriptionsPage';
 
 // Componentes
 import ProtectedRoute from './components/ProtectedRoute';
@@ -68,6 +69,14 @@ function AppContent() {
         element={
           <ProtectedAdminRoute>
             <AdminDoctorsPage />
+          </ProtectedAdminRoute>
+        }
+      />
+      <Route
+        path="/admin/subscriptions"
+        element={
+          <ProtectedAdminRoute>
+            <AdminSubscriptionsPage />
           </ProtectedAdminRoute>
         }
       />

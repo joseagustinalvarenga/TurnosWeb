@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../hooks/useAdminAuth';
+import AdminLayout from '../components/AdminLayout';
 import axios from 'axios';
 import styles from './AdminDashboardPage.module.css';
 
@@ -52,6 +53,7 @@ export default function AdminDashboardPage() {
   };
 
   return (
+    <AdminLayout>
     <div className={styles.container}>
       {/* Header */}
       <div className={styles.header}>
@@ -59,9 +61,6 @@ export default function AdminDashboardPage() {
           <h1>Panel de Administración</h1>
           <p>Bienvenido, {admin?.name}</p>
         </div>
-        <button className={styles.logoutBtn} onClick={handleLogout}>
-          Cerrar Sesión
-        </button>
       </div>
 
       {/* Main Content */}
@@ -163,5 +162,6 @@ export default function AdminDashboardPage() {
         </div>
       </div>
     </div>
+    </AdminLayout>
   );
 }

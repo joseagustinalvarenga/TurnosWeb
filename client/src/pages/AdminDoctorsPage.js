@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAdminAuth } from '../hooks/useAdminAuth';
+import AdminLayout from '../components/AdminLayout';
 import axios from 'axios';
 import styles from './AdminDoctorsPage.module.css';
 
@@ -131,10 +132,15 @@ export default function AdminDoctorsPage() {
   };
 
   if (loading) {
-    return <div className={styles.container}>Cargando...</div>;
+    return (
+      <AdminLayout>
+        <div className={styles.container}>Cargando...</div>
+      </AdminLayout>
+    );
   }
 
   return (
+    <AdminLayout>
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>Gestión de Doctores</h1>
@@ -282,5 +288,6 @@ export default function AdminDoctorsPage() {
         </div>
       )}
     </div>
+    </AdminLayout>
   );
 }
