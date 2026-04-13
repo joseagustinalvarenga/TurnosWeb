@@ -515,49 +515,65 @@ export default function AppointmentsPage() {
         {delayModal.show && (
           <div className={styles.modal}>
             <div className={styles.modalContent}>
-              <h2>Registrar Retraso</h2>
-              <p>¿Cuántos minutos de retraso tiene esta cita?</p>
-
-              <div className={styles.delayOptions}>
-                {[15, 30, 45, 60].map(mins => (
-                  <button
-                    key={mins}
-                    onClick={() => setDelayMinutes(mins)}
-                    className={`${styles.optionBtn} ${delayMinutes === mins ? styles.active : ''}`}
-                  >
-                    {mins} min
-                  </button>
-                ))}
-              </div>
-
-              <div className={styles.customInput}>
-                <label>O ingresa minutos personalizados:</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="180"
-                  value={delayMinutes}
-                  onChange={(e) => setDelayMinutes(parseInt(e.target.value) || 0)}
-                  className={styles.input}
-                />
-              </div>
-
-              <div className={styles.modalButtons}>
+              <div className={styles.modalHeader}>
+                <h2>Registrar Retraso</h2>
                 <button
                   onClick={() => {
                     setDelayModal({ show: false, appointmentId: null });
                     setDelayMinutes(15);
                   }}
-                  className={styles.cancelBtn}
+                  className={styles.closeBtn}
                 >
-                  Cancelar
+                  ✕
                 </button>
-                <button
-                  onClick={handleDelay}
-                  className={styles.confirmBtn}
-                >
-                  Registrar Retraso
-                </button>
+              </div>
+
+              <div style={{ padding: '1.5rem' }}>
+                <p style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>
+                  ¿Cuántos minutos de retraso tiene esta cita?
+                </p>
+
+                <div className={styles.delayOptions}>
+                  {[15, 30, 45, 60].map(mins => (
+                    <button
+                      key={mins}
+                      onClick={() => setDelayMinutes(mins)}
+                      className={`${styles.optionBtn} ${delayMinutes === mins ? styles.active : ''}`}
+                    >
+                      {mins} min
+                    </button>
+                  ))}
+                </div>
+
+                <div className={styles.customInput}>
+                  <label>O ingresa minutos personalizados:</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="180"
+                    value={delayMinutes}
+                    onChange={(e) => setDelayMinutes(parseInt(e.target.value) || 0)}
+                    className={styles.input}
+                  />
+                </div>
+
+                <div className={styles.modalButtons}>
+                  <button
+                    onClick={() => {
+                      setDelayModal({ show: false, appointmentId: null });
+                      setDelayMinutes(15);
+                    }}
+                    className={styles.cancelBtn}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleDelay}
+                    className={styles.confirmBtn}
+                  >
+                    Registrar Retraso
+                  </button>
+                </div>
               </div>
             </div>
           </div>
