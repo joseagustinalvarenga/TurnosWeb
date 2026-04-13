@@ -124,6 +124,11 @@ export const appointmentAPI = {
     // Esta llamada no requiere autenticación
     const response = await axios.get(`${API_BASE_URL}/api/appointments/public/${token}`);
     return response.data;
+  },
+
+  updateDelay: async (appointmentId, data) => {
+    const response = await apiClient.patch(`/api/appointments/${appointmentId}/delay`, data);
+    return response.data;
   }
 };
 

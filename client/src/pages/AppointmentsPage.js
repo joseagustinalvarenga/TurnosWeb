@@ -27,6 +27,8 @@ export default function AppointmentsPage() {
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [patientInsurances, setPatientInsurances] = useState([]);
   const { isConnected } = useWebSocketContext();
+  const [delayModal, setDelayModal] = useState({ show: false, appointmentId: null });
+  const [delayMinutes, setDelayMinutes] = useState(15);
 
   useEffect(() => {
     fetchAppointments();
@@ -147,6 +149,34 @@ export default function AppointmentsPage() {
     } catch (err) {
       console.error('Error actualizando cita:', err);
       alert('Error al actualizar la cita');
+    }
+  };
+
+  const handleDelay = async () => {
+    if (!delayMinutes || delayMinutes <= 0) {
+      alert('Por favor ingresa minutos válidos');
+      return;
+    }
+
+    try {
+      const response = await appointmentAPI.updateDelay(delayModal.appointmentId, {
+        delay_minutes: delayMinutes,
+        delay_reason: 'Retraso registrado'
+      });
+
+      if (response.success) {
+        setAppointments(prev =>
+          prev.map(a => a.id === delayModal.appointmentId
+            ? { ...a, delay_minutes: delayMinutes }
+            : a)
+        );
+        alert(`✓ Retraso de ${delayMinutes} minutos registrado`);
+        setDelayModal({ show: false, appointmentId: null });
+        setDelayMinutes(15);
+      }
+    } catch (err) {
+      console.error('Error registrando retraso:', err);
+      alert('Error al registrar el retraso');
     }
   };
 
@@ -448,15 +478,27 @@ export default function AppointmentsPage() {
                     <td className={styles.insurance}>{appt.insurance_name || '-'}</td>
                     <td>{getStatusBadge(appt.status)}</td>
                     <td className={styles.actions}>
-                      <select
-                        value={appt.status}
-                        onChange={(e) => handleStatusChange(appt.id, e.target.value)}
-                        className={styles.statusSelect}
-                      >
-                        <option value="scheduled">Programado</option>
-                        <option value="completed">Completado</option>
-                        <option value="cancelled">Cancelado</option>
-                      </select>
+                      <div className={styles.actionButtons}>
+                        <select
+                          value={appt.status}
+                          onChange={(e) => handleStatusChange(appt.id, e.target.value)}
+                          className={styles.statusSelect}
+                        >
+                          <option value="scheduled">Programado</option>
+                          <option value="completed">Completado</option>
+                          <option value="cancelled">Cancelado</option>
+                        </select>
+                        <button
+                          onClick={() => setDelayModal({ show: true, appointmentId: appt.id })}
+                          className={styles.delayBtn}
+                          title="Registrar retraso"
+                        >
+                          ⏱️ Retraso
+                        </button>
+                      </div>
+                      {appt.delay_minutes > 0 && (
+                        <div className={styles.delayBadge}>+{appt.delay_minutes} min</div>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -468,6 +510,58 @@ export default function AppointmentsPage() {
         <div className={styles.footer}>
           <p>Total: <strong>{filteredAppointments.length}</strong> cita(s)</p>
         </div>
+
+        {/* Delay Modal */}
+        {delayModal.show && (
+          <div className={styles.modal}>
+            <div className={styles.modalContent}>
+              <h2>Registrar Retraso</h2>
+              <p>¿Cuántos minutos de retraso tiene esta cita?</p>
+
+              <div className={styles.delayOptions}>
+                {[15, 30, 45, 60].map(mins => (
+                  <button
+                    key={mins}
+                    onClick={() => setDelayMinutes(mins)}
+                    className={`${styles.optionBtn} ${delayMinutes === mins ? styles.active : ''}`}
+                  >
+                    {mins} min
+                  </button>
+                ))}
+              </div>
+
+              <div className={styles.customInput}>
+                <label>O ingresa minutos personalizados:</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="180"
+                  value={delayMinutes}
+                  onChange={(e) => setDelayMinutes(parseInt(e.target.value) || 0)}
+                  className={styles.input}
+                />
+              </div>
+
+              <div className={styles.modalButtons}>
+                <button
+                  onClick={() => {
+                    setDelayModal({ show: false, appointmentId: null });
+                    setDelayMinutes(15);
+                  }}
+                  className={styles.cancelBtn}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleDelay}
+                  className={styles.confirmBtn}
+                >
+                  Registrar Retraso
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </DoctorLayout>
   );
