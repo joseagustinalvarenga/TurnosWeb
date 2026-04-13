@@ -1,19 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import axios from 'axios';
 import DoctorLayout from '../components/DoctorLayout';
 import Icon from '../components/Icon';
+import { useAuth } from '../hooks/useAuth';
 import { googleAPI } from '../services/api';
 import styles from './SettingsPage.module.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+
 export default function SettingsPage() {
+  const { user, token } = useAuth();
   const [searchParams] = useSearchParams();
   const [googleConnected, setGoogleConnected] = useState(false);
   const [loading, setLoading] = useState(true);
   const [disconnecting, setDisconnecting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [profileData, setProfileData] = useState({
+    specialization: '',
+    clinic_name: '',
+    license_number: '',
+    phone: '',
+    address: ''
+  });
+  const [savingProfile, setSavingProfile] = useState(false);
 
   useEffect(() => {
     fetchGoogleStatus();
+
+    // Cargar datos del usuario
+    if (user) {
+      setProfileData({
+        specialization: user.specialization || '',
+        clinic_name: user.clinic_name || '',
+        license_number: user.license_number || '',
+        phone: user.phone || '',
+        address: user.address || ''
+      });
+    }
 
     // Detectar si viene del callback de Google
     if (searchParams.get('connected') === 'true') {
@@ -25,7 +49,7 @@ export default function SettingsPage() {
       setSuccessMessage('✗ Error al conectar Google Calendar');
       setTimeout(() => setSuccessMessage(''), 5000);
     }
-  }, [searchParams]);
+  }, [searchParams, user]);
 
   const fetchGoogleStatus = async () => {
     try {
@@ -76,6 +100,39 @@ export default function SettingsPage() {
       setTimeout(() => setSuccessMessage(''), 5000);
     } finally {
       setDisconnecting(false);
+    }
+  };
+
+  const handleProfileChange = (e) => {
+    const { name, value } = e.target;
+    setProfileData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+    try {
+      setSavingProfile(true);
+      const response = await axios.put(
+        `${API_BASE_URL}/api/auth/profile`,
+        profileData,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      if (response.data.success) {
+        setSuccessMessage('✓ Perfil actualizado correctamente');
+        setTimeout(() => setSuccessMessage(''), 5000);
+      }
+    } catch (err) {
+      console.error('Error guardando perfil:', err);
+      setSuccessMessage('✗ Error al guardar cambios');
+      setTimeout(() => setSuccessMessage(''), 5000);
+    } finally {
+      setSavingProfile(false);
     }
   };
 
@@ -163,14 +220,97 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Other Settings Placeholder */}
+        {/* Profile Settings */}
         <div className={styles.section}>
-          <div className={styles.sectionTitle}>
-            <Icon name="settings" size={24} color="#2563eb" />
-            Más Configuraciones
+          <div className={styles.sectionHeader}>
+            <div className={styles.sectionTitle}>
+              <Icon name="users" size={24} color="#2563eb" />
+              Datos Profesionales
+            </div>
+            <p className={styles.sectionDescription}>
+              Actualiza tu información profesional y de contacto
+            </p>
           </div>
+
           <div className={styles.card}>
-            <p className={styles.comingSoon}>Más opciones de configuración próximamente...</p>
+            <form onSubmit={handleSaveProfile} className={styles.form}>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="specialization">Especialidad de Medicina</label>
+                  <input
+                    type="text"
+                    id="specialization"
+                    name="specialization"
+                    value={profileData.specialization}
+                    onChange={handleProfileChange}
+                    placeholder="Ej: Cardiología, Dermatología, etc."
+                    disabled={savingProfile}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="license_number">Número de Matrícula</label>
+                  <input
+                    type="text"
+                    id="license_number"
+                    name="license_number"
+                    value={profileData.license_number}
+                    onChange={handleProfileChange}
+                    placeholder="Ej: MED-123456"
+                    disabled={savingProfile}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="clinic_name">Nombre de la Clínica</label>
+                  <input
+                    type="text"
+                    id="clinic_name"
+                    name="clinic_name"
+                    value={profileData.clinic_name}
+                    onChange={handleProfileChange}
+                    placeholder="Ej: Clínica Central"
+                    disabled={savingProfile}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="phone">Teléfono de Contacto</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={profileData.phone}
+                    onChange={handleProfileChange}
+                    placeholder="Ej: +54 9 11 1234-5678"
+                    disabled={savingProfile}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="address">Dirección</label>
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  value={profileData.address}
+                  onChange={handleProfileChange}
+                  placeholder="Ej: Calle Principal 123, Departamento 4"
+                  disabled={savingProfile}
+                />
+              </div>
+
+              <button
+                type="submit"
+                className={styles.submitBtn}
+                disabled={savingProfile}
+              >
+                {savingProfile ? 'Guardando...' : 'Guardar Cambios'}
+              </button>
+            </form>
           </div>
         </div>
       </div>

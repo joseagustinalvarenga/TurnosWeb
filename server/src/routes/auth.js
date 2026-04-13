@@ -211,6 +211,46 @@ router.post('/logout', verifyToken, (req, res) => {
   });
 });
 
+// Actualizar perfil del doctor
+router.put('/profile', verifyToken, async (req, res) => {
+  try {
+    const { specialization, clinic_name, license_number, phone, address } = req.body;
+    const doctorId = req.user.id;
+
+    const result = await query(
+      `UPDATE doctors
+       SET specialization = COALESCE($1, specialization),
+           clinic_name = COALESCE($2, clinic_name),
+           license_number = COALESCE($3, license_number),
+           phone = COALESCE($4, phone),
+           address = COALESCE($5, address),
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = $6
+       RETURNING id, email, name, specialization, clinic_name, license_number, phone, address`,
+      [specialization, clinic_name, license_number, phone, address, doctorId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor no encontrado'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Perfil actualizado correctamente',
+      doctor: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Error actualizando perfil:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al actualizar perfil'
+    });
+  }
+});
+
 // ============ GOOGLE OAUTH ============
 
 // Iniciar flujo de autenticación con Google
