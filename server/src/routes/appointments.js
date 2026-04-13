@@ -18,12 +18,15 @@ router.get('/public/specializations', async (req, res) => {
       `SELECT DISTINCT specialization
        FROM doctors
        WHERE status = 'approved'
-       AND subscription_status = 'active'
+       AND subscription_status IN ('active', 'trial')
        AND specialization IS NOT NULL
+       AND specialization != ''
        ORDER BY specialization ASC`
     );
 
     const specializations = result.rows.map(row => row.specialization).filter(Boolean);
+
+    console.log('✓ Especialidades encontradas:', specializations);
 
     res.json({
       success: true,
@@ -50,10 +53,12 @@ router.get('/public/doctors/:specialization', async (req, res) => {
        FROM doctors
        WHERE LOWER(specialization) = LOWER($1)
        AND status = 'approved'
-       AND subscription_status = 'active'
+       AND subscription_status IN ('active', 'trial')
        ORDER BY name ASC`,
       [specialization]
     );
+
+    console.log('✓ Médicos encontrados:', result.rows.length);
 
     res.json({
       success: true,
