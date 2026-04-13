@@ -208,7 +208,7 @@ export default function PatientPortalHomePage() {
           <div className={styles.helpSection}>
             <h4 className={styles.helpTitle}>¿Necesitas ayuda?</h4>
             <p className={styles.helpText}>
-              Si no encuentras tu turno, verifica que hayas ingresado correctamente tus datos, o escaneá el código QR de tu comprobante.
+              Si no encuentras tu turno, verifica que hayas ingresado correctamente tus datos.
             </p>
           </div>
 
