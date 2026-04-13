@@ -103,6 +103,27 @@ export async function sendAppointmentConfirmation({
           .button:hover {
             background-color: #1d4ed8;
           }
+          .access-info {
+            background-color: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+          }
+          .access-info h3 {
+            margin: 0 0 10px 0;
+            color: #2563eb;
+          }
+          .access-option {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+            border: 1px solid #dbeafe;
+          }
+          .access-option strong {
+            color: #2563eb;
+          }
           .footer {
             border-top: 1px solid #e5e7eb;
             padding-top: 20px;
@@ -148,8 +169,21 @@ export async function sendAppointmentConfirmation({
               ` : ''}
             </div>
 
-            <p>Para ver más detalles de tu cita, haz clic en el botón de abajo:</p>
-            <a href="${confirmUrl}" class="button">Ver Mi Cita</a>
+            <div class="access-info">
+              <h3>🔍 ¿Cómo ver tu turno?</h3>
+              <div class="access-option">
+                <strong>Opción 1: Por tu Nombre</strong><br>
+                Ingresa tu nombre completo en: <a href="http://localhost:3000/patient">Ver Turno</a>
+              </div>
+              <div class="access-option">
+                <strong>Opción 2: Por Link Directo</strong><br>
+                Haz clic en el botón de abajo para ver tu cita directamente
+              </div>
+            </div>
+
+            <p style="text-align: center;">
+              <a href="${confirmUrl}" class="button">Ver Mi Cita Ahora</a>
+            </p>
 
             <p style="margin-top: 30px;">Si tienes preguntas o necesitas reprogramar tu cita, por favor contacta con la clínica.</p>
           </div>
