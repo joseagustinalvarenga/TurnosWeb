@@ -204,20 +204,6 @@ export default function PatientPortalHomePage() {
             </form>
           )}
 
-          {/* Divider */}
-          <div className={styles.divider}>
-            <span>O</span>
-          </div>
-
-          {/* QR Code Section */}
-          <div className={styles.qrSection}>
-            <p className={styles.qrTitle}>ESCANEA TU CÓDIGO QR</p>
-            <div className={styles.qrBox}>
-              <p className={styles.qrPlaceholder}>QR Code</p>
-            </div>
-            <p className={styles.qrHint}>Escanea el código QR de tu comprobante</p>
-          </div>
-
           {/* Help Section */}
           <div className={styles.helpSection}>
             <h4 className={styles.helpTitle}>¿Necesitas ayuda?</h4>
