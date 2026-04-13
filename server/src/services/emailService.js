@@ -362,6 +362,183 @@ export async function sendDelayNotification({
   }
 }
 
+// Enviar notificación de rechazo de cita
+export async function sendAppointmentRejectionEmail({
+  to,
+  patientName,
+  doctorName,
+  appointmentDate,
+  appointmentTime,
+  reason
+}) {
+  try {
+    if (!to) {
+      console.log('⚠️  Paciente sin email, se omite notificación de rechazo');
+      return { sent: false, reason: 'No email' };
+    }
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+          }
+          .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+          }
+          .header {
+            border-bottom: 3px solid #dc2626;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+          }
+          .header h1 {
+            margin: 0;
+            color: #dc2626;
+            font-size: 24px;
+          }
+          .alert-box {
+            background-color: #fee2e2;
+            border-left: 4px solid #dc2626;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+          }
+          .detail-row {
+            display: flex;
+            margin: 10px 0;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+          }
+          .detail-row:last-child {
+            border-bottom: none;
+          }
+          .detail-label {
+            font-weight: 600;
+            width: 150px;
+            color: #555;
+          }
+          .detail-value {
+            flex: 1;
+            color: #333;
+            font-size: 16px;
+          }
+          .reason-box {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+          }
+          .reason-label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 10px;
+          }
+          .reason-text {
+            color: #333;
+            line-height: 1.6;
+          }
+          .contact-box {
+            background-color: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+          }
+          .contact-box h3 {
+            margin: 0 0 10px 0;
+            color: #2563eb;
+          }
+          .footer {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 20px;
+            margin-top: 30px;
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>❌ Cita No Confirmada</h1>
+          </div>
+
+          <p>Hola <strong>${patientName}</strong>,</p>
+
+          <div class="alert-box">
+            <p><strong>Lamentablemente, tu solicitud de cita ha sido rechazada.</strong></p>
+          </div>
+
+          <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; padding: 20px; border-radius: 4px; margin: 20px 0;">
+            <div class="detail-row">
+              <span class="detail-label">👨‍⚕️ Doctor:</span>
+              <span class="detail-value">${doctorName}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">📅 Fecha Solicitada:</span>
+              <span class="detail-value">${new Date(appointmentDate).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">🕐 Hora Solicitada:</span>
+              <span class="detail-value">${appointmentTime}</span>
+            </div>
+          </div>
+
+          ${reason ? `
+          <div class="reason-box">
+            <div class="reason-label">📝 Motivo del Rechazo:</div>
+            <div class="reason-text">${reason}</div>
+          </div>
+          ` : ''}
+
+          <div class="contact-box">
+            <h3>📞 ¿Qué puedo hacer?</h3>
+            <p>Puedes intentar solicitar otro turno en una fecha o hora diferente. Para consultas adicionales, no dudes en contactar directamente con la clínica.</p>
+          </div>
+
+          <p style="margin-top: 20px;">Si tienes preguntas, por favor contacta con la clínica.</p>
+
+          <div class="footer">
+            <p>Este es un email automático, por favor no respondas a este correo.</p>
+            <p>&copy; 2026 MediHub - Sistema de Gestión de Citas Médicas.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    console.log('📧 Enviando notificación de rechazo a:', to);
+
+    const info = await transporter.sendMail({
+      from: `"MediHub - Sistema de Citas" <${process.env.SMTP_USER}>`,
+      to: to,
+      subject: `❌ Tu cita con ${doctorName} ha sido rechazada`,
+      html: htmlContent
+    });
+
+    console.log('✓ Notificación de rechazo enviada:', info.messageId);
+    return { sent: true, messageId: info.messageId };
+
+  } catch (error) {
+    console.error('❌ Error enviando notificación de rechazo:', error.message);
+    return { sent: false, error: error.message };
+  }
+}
+
 function calculateNewTime(originalTime, delayMinutes) {
   try {
     const [hours, minutes] = originalTime.split(':').map(Number);

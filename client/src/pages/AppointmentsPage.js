@@ -226,12 +226,57 @@ export default function AppointmentsPage() {
 
   const getStatusBadge = (status) => {
     const badges = {
+      pending: { label: 'Pendiente de Aprobación', class: styles.statusPending },
       scheduled: { label: 'Programado', class: styles.statusScheduled },
       completed: { label: 'Completado', class: styles.statusCompleted },
-      cancelled: { label: 'Cancelado', class: styles.statusCancelled }
+      cancelled: { label: 'Cancelado', class: styles.statusCancelled },
+      rejected: { label: 'Rechazado', class: styles.statusRejected }
     };
     const badge = badges[status] || badges.scheduled;
     return <span className={`${styles.statusBadge} ${badge.class}`}>{badge.label}</span>;
+  };
+
+  const handleAcceptAppointment = async (appointmentId) => {
+    try {
+      setLoading(true);
+      const response = await appointmentAPI.acceptAppointment(appointmentId);
+      if (response.success) {
+        // Actualizar la cita en el estado local
+        const updated = appointments.map(a =>
+          a.id === appointmentId ? { ...a, status: 'scheduled' } : a
+        );
+        setAppointments(updated);
+        alert('✓ Cita aceptada y confirmación enviada al paciente');
+      }
+    } catch (err) {
+      console.error('Error aceptando cita:', err);
+      alert('Error al aceptar la cita');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRejectAppointment = async (appointmentId) => {
+    const reason = window.prompt('¿Por qué rechazas esta cita?');
+    if (reason === null) return; // Cancelado
+
+    try {
+      setLoading(true);
+      const response = await appointmentAPI.rejectAppointment(appointmentId, reason);
+      if (response.success) {
+        // Actualizar la cita en el estado local
+        const updated = appointments.map(a =>
+          a.id === appointmentId ? { ...a, status: 'rejected' } : a
+        );
+        setAppointments(updated);
+        alert('✓ Cita rechazada');
+      }
+    } catch (err) {
+      console.error('Error rechazando cita:', err);
+      alert('Error al rechazar la cita');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) {
@@ -418,9 +463,11 @@ export default function AppointmentsPage() {
               className={styles.select}
             >
               <option value="all">Todos los estados</option>
+              <option value="pending">Pendiente de Aprobación</option>
               <option value="scheduled">Programado</option>
               <option value="completed">Completado</option>
               <option value="cancelled">Cancelado</option>
+              <option value="rejected">Rechazado</option>
             </select>
 
             <input
@@ -479,22 +526,43 @@ export default function AppointmentsPage() {
                     <td>{getStatusBadge(appt.status)}</td>
                     <td className={styles.actions}>
                       <div className={styles.actionButtons}>
-                        <select
-                          value={appt.status}
-                          onChange={(e) => handleStatusChange(appt.id, e.target.value)}
-                          className={styles.statusSelect}
-                        >
-                          <option value="scheduled">Programado</option>
-                          <option value="completed">Completado</option>
-                          <option value="cancelled">Cancelado</option>
-                        </select>
-                        <button
-                          onClick={() => setDelayModal({ show: true, appointmentId: appt.id })}
-                          className={styles.delayBtn}
-                          title="Registrar retraso"
-                        >
-                          ⏱️ Retraso
-                        </button>
+                        {appt.status === 'pending' ? (
+                          <>
+                            <button
+                              onClick={() => handleAcceptAppointment(appt.id)}
+                              className={styles.acceptBtn}
+                              title="Aceptar cita"
+                            >
+                              ✓ Aceptar
+                            </button>
+                            <button
+                              onClick={() => handleRejectAppointment(appt.id)}
+                              className={styles.rejectBtn}
+                              title="Rechazar cita"
+                            >
+                              ✗ Rechazar
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <select
+                              value={appt.status}
+                              onChange={(e) => handleStatusChange(appt.id, e.target.value)}
+                              className={styles.statusSelect}
+                            >
+                              <option value="scheduled">Programado</option>
+                              <option value="completed">Completado</option>
+                              <option value="cancelled">Cancelado</option>
+                            </select>
+                            <button
+                              onClick={() => setDelayModal({ show: true, appointmentId: appt.id })}
+                              className={styles.delayBtn}
+                              title="Registrar retraso"
+                            >
+                              ⏱️ Retraso
+                            </button>
+                          </>
+                        )}
                       </div>
                       {appt.delay_minutes > 0 && (
                         <div className={styles.delayBadge}>+{appt.delay_minutes} min</div>

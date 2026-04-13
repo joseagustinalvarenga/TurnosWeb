@@ -26,6 +26,14 @@ export default function PatientPortalHomePage() {
   const [selectedSlot, setSelectedSlot] = useState('');
   const [bookingError, setBookingError] = useState('');
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [patientData, setPatientData] = useState({
+    name: '',
+    lastName: '',
+    email: '',
+    documentNumber: '',
+    phone: ''
+  });
 
   // Cargar especialidades al montar el componente
   useEffect(() => {
@@ -81,6 +89,66 @@ export default function PatientPortalHomePage() {
     } catch (err) {
       console.error('Error cargando horarios:', err);
       setAvailableSlots([]);
+    }
+  };
+
+  const handlePatientDataChange = (e) => {
+    const { name, value } = e.target;
+    setPatientData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleBookAppointment = async (e) => {
+    e.preventDefault();
+
+    // Validar datos del paciente
+    if (!patientData.name || !patientData.lastName || !patientData.email || !patientData.documentNumber || !patientData.phone) {
+      setBookingError('Por favor completa todos tus datos');
+      return;
+    }
+
+    // Validar email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(patientData.email)) {
+      setBookingError('Por favor ingresa un email válido');
+      return;
+    }
+
+    setBookingLoading(true);
+    setBookingError('');
+
+    try {
+      // Crear la cita como pendiente
+      const response = await appointmentAPI.createPublicAppointment({
+        doctorId: selectedDoctor,
+        appointmentDate,
+        appointmentTime: selectedSlot,
+        patientName: patientData.name,
+        patientLastName: patientData.lastName,
+        patientEmail: patientData.email,
+        patientDocumentNumber: patientData.documentNumber,
+        patientPhone: patientData.phone
+      });
+
+      if (response.success) {
+        setBookingSuccess(true);
+        setBookingLoading(false);
+        // Resetear formulario después de 3 segundos
+        setTimeout(() => {
+          setBookingSuccess(false);
+          setPatientData({ name: '', lastName: '', email: '', documentNumber: '', phone: '' });
+          setSelectedSpecialization('');
+          setSelectedDoctor('');
+          setAppointmentDate('');
+          setSelectedSlot('');
+        }, 3000);
+      }
+    } catch (err) {
+      console.error('Error creando cita:', err);
+      setBookingError(err.response?.data?.message || 'Error al agendar el turno');
+      setBookingLoading(false);
     }
   };
 
@@ -297,15 +365,129 @@ export default function PatientPortalHomePage() {
             </form>
           )}
 
+          {/* Mensaje de éxito */}
+          {activeTab === 'book' && bookingSuccess && (
+            <div className={styles.form}>
+              <div style={{
+                background: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)',
+                border: '2px solid #6ee7b7',
+                borderRadius: '10px',
+                padding: '2rem',
+                textAlign: 'center'
+              }}>
+                <h2 style={{
+                  color: '#065f46',
+                  fontSize: '1.5rem',
+                  fontWeight: '800',
+                  margin: '0 0 1rem 0'
+                }}>
+                  ✓ ¡Turno Agendado!
+                </h2>
+                <p style={{
+                  color: '#047857',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  margin: '0.75rem 0'
+                }}>
+                  Tu solicitud de turno ha sido enviada al médico.
+                </p>
+                <p style={{
+                  color: '#047857',
+                  fontSize: '0.95rem',
+                  fontWeight: '500',
+                  margin: '0.75rem 0',
+                  lineHeight: '1.6'
+                }}>
+                  Estado: <strong>PENDIENTE DE APROBACIÓN</strong><br />
+                  El doctor revisará tu solicitud y se pondrá en contacto contigo pronto por email.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Formulario - AGENDAR TURNO */}
-          {activeTab === 'book' && (
-            <form onSubmit={async (e) => {
-              e.preventDefault();
-              // Aquí irá la lógica para crear la cita
-              console.log('Agendar turno:', { selectedSpecialization, selectedDoctor, appointmentDate, selectedSlot });
-            }} className={styles.form}>
+          {activeTab === 'book' && !bookingSuccess && (
+            <form onSubmit={handleBookAppointment} className={styles.form}>
               <h3 className={styles.formTitle}>Agendar Turno</h3>
-              <p className={styles.formSubtitle}>Selecciona especialidad, médico y horario</p>
+              <p className={styles.formSubtitle}>Completa tus datos y selecciona un turno</p>
+
+              {/* Datos del paciente */}
+              <div className={styles.sectionTitle}>Tu Información</div>
+
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="name">Nombre *</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={patientData.name}
+                    onChange={handlePatientDataChange}
+                    placeholder="Ej: Juan"
+                    className={styles.input}
+                    disabled={bookingLoading}
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="lastName">Apellido *</label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    value={patientData.lastName}
+                    onChange={handlePatientDataChange}
+                    placeholder="Ej: García"
+                    className={styles.input}
+                    disabled={bookingLoading}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="email">Email *</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={patientData.email}
+                  onChange={handlePatientDataChange}
+                  placeholder="tu@email.com"
+                  className={styles.input}
+                  disabled={bookingLoading}
+                />
+              </div>
+
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="documentNumber">DNI *</label>
+                  <input
+                    type="text"
+                    id="documentNumber"
+                    name="documentNumber"
+                    value={patientData.documentNumber}
+                    onChange={handlePatientDataChange}
+                    placeholder="12345678"
+                    className={styles.input}
+                    disabled={bookingLoading}
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="phone">Celular *</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={patientData.phone}
+                    onChange={handlePatientDataChange}
+                    placeholder="+54 9 1234567890"
+                    className={styles.input}
+                    disabled={bookingLoading}
+                  />
+                </div>
+              </div>
+
+              {/* Selección de turno */}
+              <div className={styles.sectionTitle}>Selecciona tu Turno</div>
 
               <div className={styles.formGroup}>
                 <label htmlFor="specialization">Especialidad</label>

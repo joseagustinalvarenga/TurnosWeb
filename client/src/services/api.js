@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+// Usa ruta relativa para que funcione con proxy
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5000');
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -152,6 +153,24 @@ export const appointmentAPI = {
 
   updateDelay: async (appointmentId, data) => {
     const response = await apiClient.patch(`/api/appointments/${appointmentId}/delay`, data);
+    return response.data;
+  },
+
+  createPublicAppointment: async (data) => {
+    // Esta llamada no requiere autenticación - crea un turno desde el portal público
+    const response = await axios.post(`${API_BASE_URL}/api/appointments/public/create`, data);
+    return response.data;
+  },
+
+  acceptAppointment: async (appointmentId) => {
+    const response = await apiClient.patch(`/api/appointments/${appointmentId}/accept`);
+    return response.data;
+  },
+
+  rejectAppointment: async (appointmentId, reason = '') => {
+    const response = await apiClient.patch(`/api/appointments/${appointmentId}/reject`, {
+      reason
+    });
     return response.data;
   }
 };

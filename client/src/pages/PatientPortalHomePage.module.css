@@ -178,6 +178,30 @@
   padding: 2.5rem;
 }
 
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 2rem 0 1.5rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #2563eb;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .formRow {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
 .formTitle {
   margin: 0 0 0.75rem 0;
   font-size: 1.4rem;
