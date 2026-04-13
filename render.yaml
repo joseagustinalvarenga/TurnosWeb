@@ -10,15 +10,25 @@ services:
       - key: NODE_ENV
         value: production
       - key: DB_HOST
-        sync: false
+        fromDatabase:
+          name: consultorio-db
+          property: host
       - key: DB_PORT
-        value: "5432"
+        fromDatabase:
+          name: consultorio-db
+          property: port
       - key: DB_NAME
-        value: consultorio_medico
+        fromDatabase:
+          name: consultorio-db
+          property: database
       - key: DB_USER
-        sync: false
+        fromDatabase:
+          name: consultorio-db
+          property: user
       - key: DB_PASSWORD
-        sync: false
+        fromDatabase:
+          name: consultorio-db
+          property: password
       - key: SMTP_USER
         sync: false
       - key: SMTP_PASSWORD
@@ -36,3 +46,9 @@ services:
     envVars:
       - key: REACT_APP_API_BASE_URL
         value: https://consultorio-medico-backend.onrender.com
+
+databases:
+  - name: consultorio-db
+    databaseName: consultorio_medico
+    user: postgres
+    region: oregon
