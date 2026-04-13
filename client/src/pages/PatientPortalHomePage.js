@@ -78,7 +78,7 @@ export default function PatientPortalHomePage() {
       <div className={styles.content}>
         {/* Header */}
         <div className={styles.headerSection}>
-          <h2 className={styles.clinicName}>CLÍNICA CENTRAL</h2>
+          <h2 className={styles.clinicName}>MediHub</h2>
           <h1 className={styles.mainTitle}>Consulta tu Turno</h1>
           <p className={styles.subtitle}>Ingresa tus datos para ver el estado de tu cita</p>
         </div>
@@ -215,7 +215,7 @@ export default function PatientPortalHomePage() {
           {/* Footer Info */}
           <div className={styles.footerInfo}>
             <p><strong>Teléfono:</strong> (555) 123-4567</p>
-            <p><strong>Email:</strong> turnos@clinicacentral.com</p>
+            <p><strong>Email:</strong> turnos@medihub.com</p>
             <p><strong>Dirección:</strong> Calle Principal 123 - De Lunes a Viernes 9:00 AM a 6:00 PM</p>
           </div>
         </div>
