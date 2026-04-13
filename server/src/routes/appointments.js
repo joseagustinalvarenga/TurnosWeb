@@ -3,10 +3,94 @@ import { verifyToken, verifyDoctorRole } from '../middleware/auth.js';
 import * as appointmentController from '../controllers/appointmentController.js';
 import { query } from '../db/config.js';
 import { sendDelayNotification } from '../services/emailService.js';
+import * as availabilityService from '../services/availabilityService.js';
 
 const router = express.Router();
 
-// Rutas protegidas para doctores
+// ===== RUTAS PÚBLICAS =====
+
+// Obtener especialidades disponibles
+router.get('/public/specializations', async (req, res) => {
+  try {
+    console.log('🔓 Obtener especialidades públicas');
+
+    const result = await query(
+      `SELECT DISTINCT specialization
+       FROM doctors
+       WHERE status = 'approved'
+       AND subscription_status = 'active'
+       AND specialization IS NOT NULL
+       ORDER BY specialization ASC`
+    );
+
+    const specializations = result.rows.map(row => row.specialization).filter(Boolean);
+
+    res.json({
+      success: true,
+      specializations
+    });
+  } catch (error) {
+    console.error('Error obteniendo especialidades:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener especialidades'
+    });
+  }
+});
+
+// Obtener médicos por especialidad
+router.get('/public/doctors/:specialization', async (req, res) => {
+  try {
+    const { specialization } = req.params;
+
+    console.log('🔓 Obtener médicos de especialidad:', specialization);
+
+    const result = await query(
+      `SELECT id, name, specialization, clinic_name, phone
+       FROM doctors
+       WHERE LOWER(specialization) = LOWER($1)
+       AND status = 'approved'
+       AND subscription_status = 'active'
+       ORDER BY name ASC`,
+      [specialization]
+    );
+
+    res.json({
+      success: true,
+      doctors: result.rows
+    });
+  } catch (error) {
+    console.error('Error obteniendo médicos:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener médicos'
+    });
+  }
+});
+
+// Obtener horarios disponibles para un médico en una fecha
+router.get('/public/available-slots/:doctorId/:date', async (req, res) => {
+  try {
+    const { doctorId, date } = req.params;
+
+    console.log('🔓 Obtener horarios disponibles para doctor:', doctorId, 'fecha:', date);
+
+    const availability = await availabilityService.getAvailableSlotsForDate(doctorId, date);
+
+    res.json({
+      success: true,
+      slots: availability
+    });
+  } catch (error) {
+    console.error('Error obteniendo horarios:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener horarios disponibles'
+    });
+  }
+});
+
+// ===== RUTAS PROTEGIDAS PARA DOCTORES =====
 router.post('/', verifyToken, verifyDoctorRole, appointmentController.createAppointment);
 router.get('/', verifyToken, verifyDoctorRole, appointmentController.getAppointments);
 router.get('/today', verifyToken, verifyDoctorRole, appointmentController.getTodayAppointments);

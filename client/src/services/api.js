@@ -132,6 +132,24 @@ export const appointmentAPI = {
     return response.data;
   },
 
+  getPublicSpecializations: async () => {
+    // Obtener especialidades disponibles (sin autenticación)
+    const response = await axios.get(`${API_BASE_URL}/api/appointments/public/specializations`);
+    return response.data;
+  },
+
+  getPublicDoctors: async (specialization) => {
+    // Obtener médicos por especialidad (sin autenticación)
+    const response = await axios.get(`${API_BASE_URL}/api/appointments/public/doctors/${encodeURIComponent(specialization)}`);
+    return response.data;
+  },
+
+  getPublicAvailableSlots: async (doctorId, date) => {
+    // Obtener horarios disponibles (sin autenticación)
+    const response = await axios.get(`${API_BASE_URL}/api/appointments/public/available-slots/${doctorId}/${date}`);
+    return response.data;
+  },
+
   updateDelay: async (appointmentId, data) => {
     const response = await apiClient.patch(`/api/appointments/${appointmentId}/delay`, data);
     return response.data;
