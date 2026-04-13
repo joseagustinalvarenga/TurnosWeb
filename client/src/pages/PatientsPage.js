@@ -379,79 +379,79 @@ export default function PatientsPage() {
           </div>
         )}
 
-        {/* Patients Grid */}
+        {/* Patients Table */}
         {filteredPatients.length === 0 ? (
           <div className={styles.emptyState}>
             <p>No hay pacientes que coincidan con tu búsqueda</p>
           </div>
         ) : (
-          <div className={styles.patientsGrid}>
-            {filteredPatients.map(patient => (
-              <div key={patient.id} className={styles.patientCard}>
-                <div className={styles.cardHeader}>
-                  <h3>{patient.name}</h3>
-                  <div className={styles.cardActions}>
-                    <button
-                      onClick={() => handleEdit(patient)}
-                      className={styles.iconBtn}
-                      title="Editar"
-                    >
-                      <Icon name="edit" size={18} color="currentColor" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(patient.id)}
-                      className={styles.iconBtn}
-                      title="Eliminar"
-                    >
-                      <Icon name="trash" size={18} color="currentColor" />
-                    </button>
-                  </div>
-                </div>
+          <div className={styles.tableWrapper}>
+            <table className={styles.patientsTable}>
+              <thead>
+                <tr>
+                  <th>PACIENTE</th>
+                  <th>CONTACTO</th>
+                  <th>VISITAS</th>
+                  <th>ÚLTIMA CITA</th>
+                  <th>ACCIONES</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPatients.map(patient => {
+                  const initials = patient.name
+                    .split(' ')
+                    .map(word => word[0])
+                    .join('')
+                    .toUpperCase()
+                    .slice(0, 2);
 
-                <div className={styles.cardBody}>
-                  {patient.email && (
-                    <div className={styles.cardItem}>
-                      <span className={styles.label}>Email:</span>
-                      <span className={styles.value}>{patient.email}</span>
-                    </div>
-                  )}
-                  {patient.phone && (
-                    <div className={styles.cardItem}>
-                      <span className={styles.label}>Teléfono:</span>
-                      <a href={`tel:${patient.phone}`} className={styles.link}>
-                        {patient.phone}
-                      </a>
-                    </div>
-                  )}
-                  {patient.date_of_birth && (
-                    <div className={styles.cardItem}>
-                      <span className={styles.label}>Nacimiento:</span>
-                      <span className={styles.value}>
-                        {new Date(patient.date_of_birth).toLocaleDateString('es-ES')}
-                      </span>
-                    </div>
-                  )}
-                  {patient.address && (
-                    <div className={styles.cardItem}>
-                      <span className={styles.label}>Dirección:</span>
-                      <span className={styles.value}>{patient.address}</span>
-                    </div>
-                  )}
-                  {patientInsurances[patient.id] && patientInsurances[patient.id].length > 0 && (
-                    <div className={styles.cardItem}>
-                      <span className={styles.label}>Obras Sociales:</span>
-                      <div className={styles.insuranceBadges}>
-                        {patientInsurances[patient.id].map(insurance => (
-                          <span key={insurance.id} className={styles.insuranceBadge}>
-                            {insurance.name}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
+                  return (
+                    <tr key={patient.id}>
+                      <td className={styles.patientCell}>
+                        <div className={styles.patientInfo}>
+                          <div className={styles.avatar}>{initials}</div>
+                          <div>
+                            <div className={styles.patientName}>{patient.name}</div>
+                            {patient.date_of_birth && (
+                              <div className={styles.patientMeta}>
+                                {new Date(patient.date_of_birth).toLocaleDateString('es-ES')}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className={styles.contactCell}>
+                        {patient.email && (
+                          <div className={styles.contactInfo}>{patient.email}</div>
+                        )}
+                        {patient.phone && (
+                          <div className={styles.contactInfo}>
+                            <a href={`tel:${patient.phone}`}>{patient.phone}</a>
+                          </div>
+                        )}
+                      </td>
+                      <td className={styles.visitsCell}>
+                        {patient.visit_count || 0} visitas
+                      </td>
+                      <td className={styles.lastVisitCell}>
+                        {patient.last_appointment_date
+                          ? new Date(patient.last_appointment_date).toLocaleDateString('es-ES')
+                          : 'Sin citas'}
+                      </td>
+                      <td className={styles.actionsCell}>
+                        <button
+                          onClick={() => handleEdit(patient)}
+                          className={styles.actionBtn}
+                          title="Editar"
+                        >
+                          Ver/Editar
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
 

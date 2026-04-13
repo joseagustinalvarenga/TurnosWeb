@@ -217,6 +217,141 @@
 }
 
 /* Patients Grid */
+/* Table */
+.tableWrapper {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.patientsTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.patientsTable thead {
+  background: var(--bg-primary);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.patientsTable th {
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.patientsTable tbody tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color var(--transition-base);
+}
+
+.patientsTable tbody tr:hover {
+  background-color: var(--bg-primary);
+}
+
+.patientsTable td {
+  padding: 1rem;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.patientCell {
+  font-weight: 500;
+  width: 25%;
+}
+
+.patientInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.patientName {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.patientMeta {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.contactCell {
+  width: 25%;
+}
+
+.contactInfo {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.contactInfo a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color var(--transition-base);
+}
+
+.contactInfo a:hover {
+  text-decoration: underline;
+}
+
+.visitsCell {
+  text-align: center;
+  width: 15%;
+}
+
+.lastVisitCell {
+  text-align: center;
+  width: 15%;
+}
+
+.actionsCell {
+  text-align: center;
+  width: 15%;
+}
+
+.actionBtn {
+  padding: 0.5rem 1rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  white-space: nowrap;
+}
+
+.actionBtn:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+/* Deprecated - kept for compatibility */
 .patientsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -231,12 +366,7 @@
   overflow: hidden;
   transition: all var(--transition-base);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.patientCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-color: var(--primary-color);
+  display: none;
 }
 
 .cardHeader {
