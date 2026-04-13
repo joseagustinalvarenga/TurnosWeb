@@ -126,6 +126,12 @@ export const appointmentAPI = {
     return response.data;
   },
 
+  getByPatientName: async (patientName) => {
+    // Esta llamada no requiere autenticación - busca por nombre del paciente
+    const response = await axios.get(`${API_BASE_URL}/api/appointments/public/search/name/${encodeURIComponent(patientName)}`);
+    return response.data;
+  },
+
   updateDelay: async (appointmentId, data) => {
     const response = await apiClient.patch(`/api/appointments/${appointmentId}/delay`, data);
     return response.data;

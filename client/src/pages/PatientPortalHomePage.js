@@ -1,36 +1,70 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { appointmentAPI } from '../services/api';
 import styles from './PatientPortalHomePage.module.css';
 
 export default function PatientPortalHomePage() {
   const navigate = useNavigate();
-  const [appointmentCode, setAppointmentCode] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [searchType, setSearchType] = useState('code'); // 'code' o 'name'
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const code = appointmentCode.trim().toUpperCase();
+    const input = searchInput.trim();
 
-    if (!code) {
-      setError('Por favor ingresa tu código de turno');
+    if (!input) {
+      setError(
+        searchType === 'code'
+          ? 'Por favor ingresa tu código de turno'
+          : 'Por favor ingresa tu nombre'
+      );
       return;
     }
 
-    if (code.length < 8) {
+    if (searchType === 'code' && input.length < 8) {
       setError('El código debe tener al menos 8 caracteres');
+      return;
+    }
+
+    if (searchType === 'name' && input.length < 2) {
+      setError('El nombre debe tener al menos 2 caracteres');
       return;
     }
 
     setLoading(true);
     setError('');
 
-    // Guardar el código en sessionStorage y navegar
-    sessionStorage.setItem('appointmentCode', code);
-    setTimeout(() => {
-      navigate(`/patient/appointment/${code}`);
-    }, 500);
+    try {
+      if (searchType === 'code') {
+        const code = input.toUpperCase();
+        sessionStorage.setItem('appointmentCode', code);
+        setTimeout(() => {
+          navigate(`/patient/appointment/${code}`);
+        }, 500);
+      } else {
+        // Buscar por nombre
+        const response = await appointmentAPI.getByPatientName(input);
+        if (response.success && response.appointment) {
+          // Navegar a la cita encontrada usando el ID
+          sessionStorage.setItem('appointmentCode', response.appointment.id);
+          setTimeout(() => {
+            navigate(`/patient/appointment/${response.appointment.id}`, {
+              state: { appointment: response.appointment }
+            });
+          }, 500);
+        }
+      }
+    } catch (err) {
+      console.error('Error buscando cita:', err);
+      setError(
+        err.response?.data?.message ||
+        'No se encontró ninguna cita. Verifica tu información e intenta nuevamente.'
+      );
+      setLoading(false);
+    }
   };
 
   return (
@@ -48,25 +82,57 @@ export default function PatientPortalHomePage() {
             </p>
           </div>
 
+          {/* Opciones de búsqueda */}
+          <div className={styles.searchTypeSelector}>
+            <button
+              type="button"
+              className={`${styles.searchTypeBtn} ${searchType === 'code' ? styles.active : ''}`}
+              onClick={() => {
+                setSearchType('code');
+                setError('');
+              }}
+            >
+              📝 Por Código
+            </button>
+            <button
+              type="button"
+              className={`${styles.searchTypeBtn} ${searchType === 'name' ? styles.active : ''}`}
+              onClick={() => {
+                setSearchType('name');
+                setError('');
+              }}
+            >
+              👤 Por Nombre
+            </button>
+          </div>
+
           {/* Formulario */}
           <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.formGroup}>
-              <label htmlFor="code">Código de Turno</label>
+              <label htmlFor="search">
+                {searchType === 'code' ? 'Código de Turno' : 'Tu Nombre Completo'}
+              </label>
               <input
                 type="text"
-                id="code"
-                value={appointmentCode}
+                id="search"
+                value={searchInput}
                 onChange={(e) => {
-                  setAppointmentCode(e.target.value);
+                  setSearchInput(e.target.value);
                   setError('');
                 }}
-                placeholder="Ingresa tu código"
+                placeholder={
+                  searchType === 'code'
+                    ? 'Ej: ABC123DEF456'
+                    : 'Ej: Juan Pérez'
+                }
                 className={styles.input}
                 disabled={loading}
                 autoFocus
               />
               <small className={styles.hint}>
-                📌 Lo encontrarás en el comprobante o SMS que recibiste
+                {searchType === 'code'
+                  ? '📌 Lo encontrarás en el comprobante o SMS que recibiste'
+                  : '📌 Usa el nombre tal como está registrado en la clínica'}
               </small>
             </div>
 

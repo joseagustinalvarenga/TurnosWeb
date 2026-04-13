@@ -78,6 +78,42 @@
   margin: 0;
 }
 
+/* Selector de tipo de búsqueda */
+.searchTypeSelector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-2xl);
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%);
+  border-radius: var(--radius-md);
+}
+
+.searchTypeBtn {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: white;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--gray);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  font-size: var(--font-size-sm);
+}
+
+.searchTypeBtn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.searchTypeBtn.active {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #0052a3 100%);
+  color: white;
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+}
+
 /* Formulario */
 .form {
   margin-bottom: var(--spacing-2xl);
@@ -103,8 +139,7 @@
   font-size: var(--font-size-base);
   transition: all var(--transition-base);
   font-family: var(--font-family);
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 .input:focus {
