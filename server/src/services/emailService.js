@@ -181,3 +181,167 @@ export async function sendAppointmentConfirmation({
     return { sent: false, error: error.message };
   }
 }
+
+// Enviar notificación de retraso a pacientes afectados
+export async function sendDelayNotification({
+  to,
+  patientName,
+  doctorName,
+  appointmentTime,
+  delayMinutes
+}) {
+  try {
+    if (!to) {
+      console.log('⚠️  Paciente sin email, se omite notificación de retraso');
+      return { sent: false, reason: 'No email' };
+    }
+
+    const newTime = calculateNewTime(appointmentTime, delayMinutes);
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+          }
+          .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+          }
+          .header {
+            border-bottom: 3px solid #f59e0b;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+          }
+          .header h1 {
+            margin: 0;
+            color: #f59e0b;
+            font-size: 24px;
+          }
+          .alert-box {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+          }
+          .detail-row {
+            display: flex;
+            margin: 10px 0;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+          }
+          .detail-row:last-child {
+            border-bottom: none;
+          }
+          .detail-label {
+            font-weight: 600;
+            width: 150px;
+            color: #555;
+          }
+          .detail-value {
+            flex: 1;
+            color: #333;
+            font-size: 18px;
+          }
+          .footer {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 20px;
+            margin-top: 30px;
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>⏱️ Notificación de Retraso en tu Cita</h1>
+          </div>
+
+          <p>Hola <strong>${patientName}</strong>,</p>
+
+          <div class="alert-box">
+            <p><strong>Tu cita médica ha sufrido un retraso.</strong></p>
+            <p>Queremos notificarte para que puedas organizar tu tiempo.</p>
+          </div>
+
+          <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; padding: 20px; border-radius: 4px; margin: 20px 0;">
+            <div class="detail-row">
+              <span class="detail-label">👨‍⚕️ Doctor:</span>
+              <span class="detail-value">${doctorName}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">⏰ Hora Original:</span>
+              <span class="detail-value">${appointmentTime}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">⏱️ Retraso:</span>
+              <span class="detail-value" style="color: #f59e0b;">+${delayMinutes} minutos</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">🕐 Nueva Hora:</span>
+              <span class="detail-value" style="color: #16a34a; font-weight: bold;">${newTime}</span>
+            </div>
+          </div>
+
+          <p style="margin-top: 20px;"><strong>Por favor, llega 5 minutos antes de la nueva hora estimada.</strong></p>
+
+          <p>Si tienes preguntas o necesitas más información, no dudes en contactar con la clínica.</p>
+
+          <div class="footer">
+            <p>Este es un email automático, por favor no respondas a este correo.</p>
+            <p>&copy; 2026 MediHub - Sistema de Gestión de Citas Médicas.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    console.log('📧 Enviando notificación de retraso a:', to);
+
+    const info = await transporter.sendMail({
+      from: `"MediHub - Sistema de Citas" <${process.env.SMTP_USER}>`,
+      to: to,
+      subject: `⏱️ Tu cita con ${doctorName} se ha retrasado ${delayMinutes} minutos`,
+      html: htmlContent
+    });
+
+    console.log('✓ Notificación de retraso enviada:', info.messageId);
+    return { sent: true, messageId: info.messageId };
+
+  } catch (error) {
+    console.error('❌ Error enviando notificación de retraso:', error.message);
+    return { sent: false, error: error.message };
+  }
+}
+
+function calculateNewTime(originalTime, delayMinutes) {
+  try {
+    const [hours, minutes] = originalTime.split(':').map(Number);
+    let newMinutes = minutes + delayMinutes;
+    let newHours = hours;
+
+    if (newMinutes >= 60) {
+      newHours += Math.floor(newMinutes / 60);
+      newMinutes = newMinutes % 60;
+    }
+
+    return `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}`;
+  } catch (error) {
+    console.error('Error calculando nueva hora:', error);
+    return originalTime;
+  }
+}

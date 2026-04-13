@@ -2,6 +2,7 @@ import express from 'express';
 import { verifyToken, verifyDoctorRole } from '../middleware/auth.js';
 import * as appointmentController from '../controllers/appointmentController.js';
 import { query } from '../db/config.js';
+import { sendDelayNotification } from '../services/emailService.js';
 
 const router = express.Router();
 
@@ -72,7 +73,11 @@ router.patch('/:appointmentId/delay', verifyToken, verifyDoctorRole, async (req,
 
     // Validar que el doctor es el propietario de la cita
     const appointmentCheck = await query(
-      'SELECT doctor_id FROM appointments WHERE id = $1',
+      `SELECT a.doctor_id, a.appointment_time, p.name as patient_name, p.email as patient_email, d.name as doctor_name
+       FROM appointments a
+       JOIN patients p ON a.patient_id = p.id
+       JOIN doctors d ON a.doctor_id = d.id
+       WHERE a.id = $1`,
       [appointmentId]
     );
 
@@ -83,7 +88,9 @@ router.patch('/:appointmentId/delay', verifyToken, verifyDoctorRole, async (req,
       });
     }
 
-    if (appointmentCheck.rows[0].doctor_id !== doctorId) {
+    const appointmentData = appointmentCheck.rows[0];
+
+    if (appointmentData.doctor_id !== doctorId) {
       return res.status(403).json({
         success: false,
         message: 'No tienes permiso para actualizar esta cita'
@@ -109,6 +116,17 @@ router.patch('/:appointmentId/delay', verifyToken, verifyDoctorRole, async (req,
     }
 
     const appointment = result.rows[0];
+
+    // Enviar notificación por email al paciente
+    if (appointmentData.patient_email && delay_minutes > 0) {
+      await sendDelayNotification({
+        to: appointmentData.patient_email,
+        patientName: appointmentData.patient_name,
+        doctorName: appointmentData.doctor_name,
+        appointmentTime: appointmentData.appointment_time,
+        delayMinutes: delay_minutes
+      });
+    }
 
     res.json({
       success: true,
