@@ -50,5 +50,5 @@ services:
 databases:
   - name: consultorio-db
     databaseName: consultorio_medico
-    user: postgres
+    user: consultorio_user
     region: oregon
