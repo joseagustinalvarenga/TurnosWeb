@@ -80,11 +80,11 @@ router.get('/public/available-slots/:doctorId/:date', async (req, res) => {
 
     console.log('🔓 Obtener horarios disponibles para doctor:', doctorId, 'fecha:', date);
 
-    const availability = await availabilityService.getAvailableSlotsForDate(doctorId, date);
+    const slots = await availabilityService.getNextAvailableSlots(doctorId, date);
 
     res.json({
       success: true,
-      slots: availability
+      slots: slots || []
     });
   } catch (error) {
     console.error('Error obteniendo horarios:', error);
