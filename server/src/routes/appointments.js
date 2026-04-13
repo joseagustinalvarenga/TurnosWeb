@@ -16,21 +16,49 @@ router.get('/:appointmentId', verifyToken, verifyDoctorRole, appointmentControll
 router.patch('/:appointmentId', verifyToken, verifyDoctorRole, appointmentController.updateAppointment);
 router.delete('/:appointmentId', verifyToken, verifyDoctorRole, appointmentController.cancelAppointment);
 
-// Ruta pública para buscar por nombre (sin autenticación)
-router.get('/public/search/name/:patientName', async (req, res) => {
+// Ruta pública para buscar por datos del paciente (sin autenticación)
+router.post('/public/search', async (req, res) => {
   try {
-    const { patientName } = req.params;
+    const { name, lastName, documentNumber } = req.body;
 
-    if (!patientName || patientName.length < 2) {
+    // Validar que al menos un campo esté completo
+    if ((!name || name.length < 2) && (!lastName || lastName.length < 2) && !documentNumber) {
       return res.status(400).json({
         success: false,
-        message: 'El nombre debe tener al menos 2 caracteres'
+        message: 'Debes ingresar al menos un dato: nombre, apellido o documento'
       });
     }
 
-    console.log('🔓 Búsqueda pública de cita por nombre:', patientName);
+    console.log('🔓 Búsqueda pública de cita por:', { name, lastName, documentNumber });
 
-    // Buscar citas programadas del paciente con ese nombre
+    let whereConditions = [];
+    let params = [];
+    let paramIndex = 1;
+
+    // Construir condiciones dinámicamente
+    if (name && name.length >= 2) {
+      whereConditions.push(`LOWER(p.name) LIKE LOWER($${paramIndex})`);
+      params.push(`%${name}%`);
+      paramIndex++;
+    }
+
+    if (lastName && lastName.length >= 2) {
+      whereConditions.push(`LOWER(p.name) LIKE LOWER($${paramIndex})`);
+      params.push(`%${lastName}%`);
+      paramIndex++;
+    }
+
+    if (documentNumber && documentNumber.length > 0) {
+      whereConditions.push(`LOWER(p.document_number) LIKE LOWER($${paramIndex})`);
+      params.push(`%${documentNumber}%`);
+      paramIndex++;
+    }
+
+    const whereClause = whereConditions.length > 0
+      ? whereConditions.join(' OR ')
+      : '1=1';
+
+    // Buscar citas programadas del paciente
     const result = await query(
       `SELECT
         a.id,
@@ -46,29 +74,29 @@ router.get('/public/search/name/:patientName', async (req, res) => {
       FROM appointments a
       JOIN patients p ON a.patient_id = p.id
       JOIN doctors d ON a.doctor_id = d.id
-      WHERE LOWER(p.name) LIKE LOWER($1)
+      WHERE (${whereClause})
       AND a.status = 'scheduled'
       ORDER BY a.appointment_date DESC, a.appointment_time DESC
       LIMIT 1`,
-      [`%${patientName}%`]
+      params
     );
 
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'No se encontró ninguna cita para este paciente'
+        message: 'No se encontró ninguna cita con esos datos'
       });
     }
 
     const appointment = result.rows[0];
-    console.log('✓ Cita encontrada por nombre:', appointment.patient_name);
+    console.log('✓ Cita encontrada:', appointment.patient_name);
 
     res.json({
       success: true,
       appointment
     });
   } catch (error) {
-    console.error('Error buscando cita por nombre:', error);
+    console.error('Error buscando cita:', error);
     res.status(500).json({
       success: false,
       message: 'Error al buscar la cita'
